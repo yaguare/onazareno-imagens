@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.1.0
+ * Version: 1.2.0
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -29,10 +29,63 @@
  *             herda o estilo do tema; padrão no modo itens).
  *   classe    Classes extras do <ul> no estilo lista (ex.: "wp-block-list alfa-grilla-signos").
  *   titulo/pendente também aceitam {t}.
+ *
+ * Modo em linha (1.2.0) — um link solto dentro de uma frase:
+ *   [enlace_iluminado slug="signo-20-de-abril"]20 de abril[/enlace_iluminado]
+ *   Enquanto o post não existe, mostra só o texto; ao publicar, o <a href> é gravado no conteúdo.
+ *   Atributos: slug (exato, sem {n}), tipo (padrão post).
  */
 if (!defined('ABSPATH')) exit;
 
 const EI_TAG = 'enlaces_iluminados';
+const EI_TAG_LINHA = 'enlace_iluminado';
+
+function ei_tem_tag($c) {
+    return strpos($c, '[' . EI_TAG) !== false || strpos($c, '[' . EI_TAG_LINHA) !== false;
+}
+
+/* Visita (modo em linha): devolve o texto ou o link gravado. */
+add_shortcode(EI_TAG_LINHA, function ($atts, $content = null) {
+    return (string) $content;
+});
+
+/* Reescreve os links em linha de um conteúdo, com uma consulta só para todos os slugs. */
+function ei_reescrever_linha($conteudo) {
+    if (strpos($conteudo, '[' . EI_TAG_LINHA) === false) return $conteudo;
+    $regex = get_shortcode_regex([EI_TAG_LINHA]);
+    if (!preg_match_all("/$regex/s", $conteudo, $todos, PREG_SET_ORDER)) return $conteudo;
+    $por_tipo = [];
+    foreach ($todos as $m) {
+        if ($m[1] === '[' && $m[6] === ']') continue;
+        $a = shortcode_parse_atts($m[3]);
+        $slug = isset($a['slug']) ? sanitize_title($a['slug']) : '';
+        $tipo = isset($a['tipo']) ? sanitize_key($a['tipo']) : 'post';
+        if ($slug !== '') $por_tipo[$tipo][$slug] = true;
+    }
+    global $wpdb;
+    $links = [];
+    foreach ($por_tipo as $tipo => $slugs) {
+        foreach (array_chunk(array_keys($slugs), 500) as $lote) {
+            $ph   = implode(',', array_fill(0, count($lote), '%s'));
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT ID, post_name FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type = %s AND post_name IN ($ph)",
+                array_merge([$tipo], $lote)
+            ));
+            foreach ($rows as $r) $links[$tipo . '|' . $r->post_name] = get_permalink((int) $r->ID);
+        }
+    }
+    return preg_replace_callback("/$regex/s", function ($m) use ($links) {
+        if ($m[1] === '[' && $m[6] === ']') return $m[0];
+        $a = shortcode_parse_atts($m[3]);
+        $slug = isset($a['slug']) ? sanitize_title($a['slug']) : '';
+        $tipo = isset($a['tipo']) ? sanitize_key($a['tipo']) : 'post';
+        $texto = trim(wp_strip_all_tags((string) $m[5]));
+        $dentro = isset($links[$tipo . '|' . $slug])
+            ? '<a href="' . esc_url($links[$tipo . '|' . $slug]) . '">' . esc_html($texto) . '</a>'
+            : esc_html($texto);
+        return '[' . EI_TAG_LINHA . $m[3] . ']' . $dentro . '[/' . EI_TAG_LINHA . ']';
+    }, $conteudo);
+}
 
 /* Visita: devolve o HTML gravado. */
 add_shortcode(EI_TAG, function ($atts, $content = null) {
@@ -154,6 +207,7 @@ function ei_montar($a) {
 
 /* Reescreve os índices de um conteúdo. Devolve o conteúdo novo. */
 function ei_reescrever_conteudo($conteudo) {
+    $conteudo = ei_reescrever_linha($conteudo);
     if (strpos($conteudo, '[' . EI_TAG) === false) return $conteudo;
     $regex = get_shortcode_regex([EI_TAG]);
     return preg_replace_callback("/$regex/s", function ($m) {
@@ -167,10 +221,11 @@ function ei_reescrever_conteudo($conteudo) {
 /* Reescreve todas as páginas/posts que usam o shortcode. */
 function ei_reescrever_tudo() {
     global $wpdb;
-    $like = '%' . $wpdb->esc_like('[' . EI_TAG) . '%';
+    $like  = '%' . $wpdb->esc_like('[' . EI_TAG) . '%';
+    $like2 = '%' . $wpdb->esc_like('[' . EI_TAG_LINHA) . '%';
     $ids  = $wpdb->get_col($wpdb->prepare(
-        "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status IN ('publish','draft','future','pending','private') AND post_type NOT IN ('revision','nav_menu_item')",
-        $like
+        "SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE %s OR post_content LIKE %s) AND post_status IN ('publish','draft','future','pending','private') AND post_type NOT IN ('revision','nav_menu_item')",
+        $like, $like2
     ));
     foreach ($ids as $id) {
         $atual = get_post_field('post_content', $id, 'raw');
@@ -202,7 +257,7 @@ add_action('post_updated', function ($id, $depois, $antes) {
 
 add_action('save_post', function ($id, $post) {
     if (wp_is_post_revision($id)) return;
-    if (strpos((string) $post->post_content, '[' . EI_TAG) !== false) ei_agendar();
+    if (ei_tem_tag((string) $post->post_content)) ei_agendar();
 }, 10, 2);
 
 /* Protege o índice do wpautop: antes dele (prioridade 9) troca o bloco por um marcador
