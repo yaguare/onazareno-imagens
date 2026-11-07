@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.3.0
+ * Version: 1.3.1
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -46,6 +46,8 @@
  *   - Meta _ei_no_marcar = 1 num post desliga o marcado automático nele.
  *   - Ability enlaces-iluminados/marcar-posts: marca posts já existentes (dry_run por padrão).
  *   - Ao publicar/despublicar um post, só se reescrevem os posts que apontam para ele (e os índices).
+ *   - (1.3.1) Um destino = um texto âncora por post: os destinos já enlaçados à mão ou por um índice
+ *     contam como usados, e marcas sobrando (para esses destinos ou repetidas) são tiradas.
  */
 if (!defined('ABSPATH')) exit;
 
@@ -346,25 +348,83 @@ function ei_regex_forma($forma) {
     return '~(?<![\p{L}\p{N}_])' . implode('\s+', $partes) . '(?![\p{L}\p{N}_])~u';
 }
 
+/* Slugs de um índice [enlaces_iluminados ...] (mesma lógica de ei_montar). */
+function ei_slugs_indice($a) {
+    $a = shortcode_atts(['slug' => '', 'desde' => 1, 'hasta' => 0, 'itens' => ''], (array) $a);
+    if ($a['slug'] === '' || strpos($a['slug'], '{n}') === false) return [];
+    $chaves = [];
+    if (trim($a['itens']) !== '') {
+        foreach (explode('|', $a['itens']) as $it) {
+            $k = trim(explode(':', $it, 2)[0]);
+            if ($k !== '') $chaves[] = $k;
+        }
+    } else {
+        $d = (int) $a['desde'];
+        $h = (int) $a['hasta'];
+        if ($h >= $d && $h - $d <= 5000) for ($n = $d; $n <= $h; $n++) $chaves[] = (string) $n;
+    }
+    return array_map(function ($k) use ($a) { return sanitize_title(str_replace('{n}', $k, $a['slug'])); }, $chaves);
+}
+
+/* Destinos que o post já enlaça por outro caminho: links escritos à mão (fora das marcas) e índices. */
+function ei_slugs_fixos($html) {
+    $fixos = [];
+    $sem = preg_replace('~\[enlace_iluminado\b.*?\[/enlace_iluminado\]|\[enlaces_iluminados\b.*?\[/enlaces_iluminados\]~is', '', $html);
+    if (is_string($sem) && preg_match_all('~<a\s[^>]*href=["\']([^"\']+)["\']~i', $sem, $m)) {
+        $host = wp_parse_url(home_url(), PHP_URL_HOST);
+        foreach (array_unique($m[1]) as $href) {
+            $h = wp_parse_url($href, PHP_URL_HOST);
+            if ($h && $h !== $host) continue;
+            $id = url_to_postid($href);
+            if ($id) {
+                $s = get_post_field('post_name', $id);
+                if ($s) $fixos[$s] = true;
+            }
+        }
+    }
+    if (preg_match_all('~\[enlaces_iluminados\b([^\]]*)\]~i', $html, $g)) {
+        foreach ($g[1] as $atts) {
+            foreach (ei_slugs_indice(shortcode_parse_atts($atts)) as $s) $fixos[$s] = true;
+        }
+    }
+    return $fixos;
+}
+
 /**
- * Marca um conteúdo. Devolve [conteudo_novo, [[texto, slug], ...]].
+ * Marca um conteúdo. Devolve [conteudo_novo, marcas [[texto, slug]...], tiradas [[texto, slug]...]].
  */
 function ei_marcar($html, $slug_proprio = '', $mapa = null) {
     $mapa = $mapa ?: ei_mapa();
-    if (!$mapa || !is_string($html) || $html === '') return [$html, []];
+    if (!$mapa || !is_string($html) || $html === '') return [$html, [], []];
     $tope = isset($mapa['tope']) ? (int) $mapa['tope'] : 30;
 
-    preg_match_all('/\[enlace_iluminado\s+slug="([^"]+)"/', $html, $ja);
-    $usados = array_fill_keys($ja[1], true);
-    if ($slug_proprio !== '') $usados[$slug_proprio] = true;
-    $existentes = count($ja[1]);
-    if ($existentes >= $tope) return [$html, []];
+    // Limpeza: tira marcas para destinos já enlaçados à mão/por índice, para o próprio post
+    // ou repetidas (fica a primeira). Um destino = um texto âncora por post.
+    $fixos = ei_slugs_fixos($html);
+    if ($slug_proprio !== '') $fixos[$slug_proprio] = true;
+    $vistos = [];
+    $tiradas = [];
+    $limpo = preg_replace_callback('~\[enlace_iluminado\s+slug="([^"]+)"[^\]]*\](.*?)\[/enlace_iluminado\]~is', function ($m) use ($fixos, &$vistos, &$tiradas) {
+        $s = $m[1];
+        if (isset($fixos[$s]) || isset($vistos[$s])) {
+            $txt = strip_tags($m[2]);
+            $tiradas[] = [$txt, $s];
+            return $txt;
+        }
+        $vistos[$s] = true;
+        return $m[0];
+    }, $html);
+    if (is_string($limpo)) $html = $limpo;
+
+    $usados = $fixos + $vistos;
+    $existentes = count($vistos);
+    if ($existentes >= $tope) return [$html, [], $tiradas];
 
     // Cópia com as zonas protegidas tapadas (mesmo tamanho em bytes, offsets válidos).
     $livre = preg_replace_callback(EI_PROTEGIDAS, function ($m) {
         return str_repeat("\x01", strlen($m[0]));
     }, $html);
-    if (!is_string($livre)) return [$html, []];
+    if (!is_string($livre)) return [$html, [], $tiradas];
 
     $cand = [];
     foreach ($mapa['entradas'] as $e) {
@@ -378,7 +438,7 @@ function ei_marcar($html, $slug_proprio = '', $mapa = null) {
             $cand[] = [$x[1], $x[1] + strlen($x[0]), $slug, mb_strlen($x[0], 'UTF-8')];
         }
     }
-    if (!$cand) return [$html, []];
+    if (!$cand) return [$html, [], $tiradas];
 
     // 1) Ganha a forma mais longa em cada sobreposição.
     usort($cand, function ($a, $b) { return $b[3] <=> $a[3] ?: $a[0] <=> $b[0]; });
@@ -408,7 +468,7 @@ function ei_marcar($html, $slug_proprio = '', $mapa = null) {
         $out = substr($out, 0, $c[0]) . '[' . EI_TAG_LINHA . ' slug="' . $c[2] . '"]' . $txt . '[/' . EI_TAG_LINHA . ']' . substr($out, $c[1]);
         array_unshift($marcas, [$txt, $c[2]]);
     }
-    return [$out, $marcas];
+    return [$out, $marcas, $tiradas];
 }
 
 /* Antes de gravar: marca posts publicados ou agendados. */
@@ -420,8 +480,8 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
     $id = isset($postarr['ID']) ? (int) $postarr['ID'] : 0;
     if ($id && get_post_meta($id, '_ei_no_marcar', true)) return $data;
     $conteudo = wp_unslash($data['post_content']);
-    list($novo, $marcas) = ei_marcar($conteudo, (string) ($data['post_name'] ?? ''));
-    if ($marcas) $data['post_content'] = wp_slash($novo);
+    list($novo) = ei_marcar($conteudo, (string) ($data['post_name'] ?? ''));
+    if ($novo !== $conteudo) $data['post_content'] = wp_slash($novo);
     return $data;
 }, 20, 2);
 
@@ -507,7 +567,7 @@ add_action('wp_abilities_api_init', function () {
 
     wp_register_ability('enlaces-iluminados/marcar-posts', [
         'label'       => 'Marcar posts existentes',
-        'description' => 'Aplica el mapa de entidades a posts ya existentes, directo en el servidor (sin reenviar contenido). Por defecto es una PRUEBA (dry_run true): informa qué marcaría. Para aplicar, repetir con dry_run false. Elegir ids, category o all true. Respeta _ei_no_marcar.',
+        'description' => 'Aplica el mapa de entidades a posts ya existentes, directo en el servidor (sin reenviar contenido). Por defecto es una PRUEBA (dry_run true): informa qué marcaría. Para aplicar, repetir con dry_run false. Elegir ids, category o all true. Un destino = un texto ancla por post: quita marcas hacia destinos que el post ya enlaza a mano o por grilla, o repetidas. Respeta _ei_no_marcar.',
         'category'    => 'enlaces-iluminados',
         'input_schema' => [
             'type' => 'object',
@@ -542,15 +602,21 @@ add_action('wp_abilities_api_init', function () {
             $res = [];
             $cambiados = 0;
             $total = 0;
+            $quitadas_total = 0;
             foreach ($wq->posts as $id) {
                 if (get_post_meta($id, '_ei_no_marcar', true)) continue;
                 $p = get_post($id);
-                list($novo, $marcas) = ei_marcar($p->post_content, $p->post_name);
-                if (!$marcas) continue;
+                list($novo, $marcas, $tiradas) = ei_marcar($p->post_content, $p->post_name);
+                if ($novo === $p->post_content) continue;
                 $cambiados++;
                 $total += count($marcas);
-                $item = ['id' => $id, 'titulo' => $p->post_title, 'nuevas' => count($marcas)];
-                if ($detalle) $item['marcas'] = array_map(function ($m) { return $m[0] . ' → ' . $m[1]; }, $marcas);
+                $quitadas_total += count($tiradas);
+                $item = ['id' => $id, 'titulo' => $p->post_title, 'nuevas' => count($marcas), 'quitadas' => count($tiradas)];
+                $fmt = function ($m) { return $m[0] . ' → ' . $m[1]; };
+                if ($detalle) {
+                    $item['marcas'] = array_map($fmt, $marcas);
+                    if ($tiradas) $item['quitadas_detalle'] = array_map($fmt, $tiradas);
+                }
                 $res[] = $item;
                 if (!$seco) {
                     $wpdb->update($wpdb->posts, ['post_content' => $novo], ['ID' => $id]);
@@ -559,7 +625,7 @@ add_action('wp_abilities_api_init', function () {
                 }
             }
             return ['dry_run' => $seco, 'revisados' => count($wq->posts), 'total_filtro' => (int) $wq->found_posts,
-                    'cambiados' => $cambiados, 'marcas' => $total, 'posts' => $res];
+                    'cambiados' => $cambiados, 'marcas' => $total, 'quitadas' => $quitadas_total, 'posts' => $res];
         },
         'meta' => $meta(false),
     ]);
