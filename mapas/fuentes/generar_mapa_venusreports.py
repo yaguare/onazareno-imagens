@@ -239,7 +239,10 @@ for mi, M in enumerate(MESES, 1):
         S = signo_fecha(mi, d)
         cusp = abs(d - LIM[mi - 1][1]) <= 1
         add("Birthdays", "Born on", f"{M} {d} Zodiac Sign ({S})",
-            [f"{M} {d}", f"{M} {ordinal(d)}", f"{d} {M}", f"{ordinal(d)} of {M}"],
+            [f"born on {M} {d}", f"born on {M} {ordinal(d)}", f"born {M} {d}", f"Born on {M} {d}",
+             f"{M} {d} birthday", f"{M} {d} birthdays", f"{M} {ordinal(d)} birthday",
+             f"birthday on {M} {d}", f"birthday is {M} {d}",
+             f"{M} {d} zodiac sign", f"{M} {d} Zodiac Sign", f"{M} {d} zodiac", f"{M} {d} sign"],
             f"{M.lower()}-{d}-zodiac-sign", "Birthday",
             "Cúspide: confirmar el signo al escribir." if cusp else "")
 
@@ -321,6 +324,7 @@ reglas = [
     "4. Nunca en H1-H6, JSON-LD (<script>), shortcodes ni dentro de un <a>.",
     "5. Mayúsculas exactas (Cancer, Leo, the Sun, the Moon, Descendant).",
     "6. Tope: 30 marcas por post, contando las que ya tenía.",
+    "7. Fechas (decisión 07/11/2026): solo con contexto de cumpleaños (\"born on March 21\", \"March 21 birthday\", \"March 21 zodiac sign\"). Una fecha suelta (tránsitos de los horóscopos) NO se marca.",
     "",
     "Columna Estado",
     "Completada el 07/11/2026 con los 76 posts publicados.",
