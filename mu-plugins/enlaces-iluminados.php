@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.0.1
+ * Version: 1.0.2
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -144,12 +144,25 @@ add_action('save_post', function ($id, $post) {
     if (strpos((string) $post->post_content, '[' . EI_TAG) !== false) ei_agendar();
 }, 10, 2);
 
-/* Remove os parágrafos vazios que o wpautop deixa em volta do índice. */
+/* Protege o índice do wpautop: antes dele (prioridade 9) troca o bloco por um marcador
+   de bloco; depois dos shortcodes (12) devolve o HTML gravado. Sem parágrafos vazios. */
+$GLOBALS['ei_reservados'] = [];
 add_filter('the_content', function ($c) {
-    if (strpos($c, 'ei-indice') === false) return $c;
-    $c = preg_replace('#<p>\s*(<div class="ei-indice")#', '$1', $c);
-    $c = preg_replace('#(</ul></div>)\s*</p>#', '$1', $c);
-    return preg_replace('#<p>\s*</p>#', '', $c);
+    if (strpos($c, '[' . EI_TAG) === false) return $c;
+    $regex = get_shortcode_regex([EI_TAG]);
+    return preg_replace_callback("/$regex/s", function ($m) {
+        if ($m[1] === '[' && $m[6] === ']') return $m[0];
+        $i = count($GLOBALS['ei_reservados']);
+        $GLOBALS['ei_reservados'][$i] = (string) $m[5];
+        return "\n<div class=\"ei-reservado-$i\"></div>\n";
+    }, $c);
+}, 9);
+add_filter('the_content', function ($c) {
+    foreach ($GLOBALS['ei_reservados'] as $i => $html) {
+        $c = str_replace("<div class=\"ei-reservado-$i\"></div>", $html, $c);
+    }
+    $GLOBALS['ei_reservados'] = [];
+    return $c;
 }, 12);
 
 /* CSS só nas páginas que usam o shortcode. */
