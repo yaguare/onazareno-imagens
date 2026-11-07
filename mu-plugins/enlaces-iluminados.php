@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.0.3
+ * Version: 1.1.0
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -20,6 +20,15 @@
  *   resumo    Frase acima da grade, com {x} (publicados) e {total}. Vazio = sem frase.
  *   pendente  Title dos números ainda não publicados (padrão vazio).
  *   cor       Cor dos números com link (padrão #b8913a).
+ *
+ * Modo lista (1.1.0) — séries com nome em vez de número (signos, meses, animais...):
+ *   itens     "chave:Rótulo|chave:Rótulo". A chave substitui {n} no slug; o rótulo vira {t}.
+ *             Com itens, desde/hasta/grupos são ignorados.
+ *   texto     Texto visível de cada item, com {t} e {n} (padrão "{t}").
+ *   estilo    "grade" (quadradinhos, padrão no modo numérico) ou "lista" (ul simples que
+ *             herda o estilo do tema; padrão no modo itens).
+ *   classe    Classes extras do <ul> no estilo lista (ex.: "wp-block-list alfa-grilla-signos").
+ *   titulo/pendente também aceitam {t}.
  */
 if (!defined('ABSPATH')) exit;
 
@@ -35,16 +44,37 @@ function ei_montar($a) {
     $a = shortcode_atts([
         'slug' => '', 'desde' => 1, 'hasta' => 0, 'tipo' => 'post', 'grupos' => '',
         'titulo' => '{n}', 'resumo' => '', 'pendente' => '', 'cor' => '#b8913a',
+        'itens' => '', 'texto' => '{t}', 'estilo' => '', 'classe' => '',
     ], (array) $a);
-    $desde = (int) $a['desde'];
-    $hasta = (int) $a['hasta'];
-    if ($a['slug'] === '' || strpos($a['slug'], '{n}') === false || $hasta < $desde || $hasta - $desde > 5000) {
-        return '<p class="ei-erro">Enlaces iluminados: configuração inválida (slug com {n}, desde, hasta).</p>';
+    if ($a['slug'] === '' || strpos($a['slug'], '{n}') === false) {
+        return '<p class="ei-erro">Enlaces iluminados: configuração inválida (slug com {n}).</p>';
     }
 
+    // Itens: chave => rótulo. Modo numérico: o número é chave e rótulo.
+    $itens = [];
+    if (trim($a['itens']) !== '') {
+        foreach (explode('|', $a['itens']) as $it) {
+            $p = explode(':', $it, 2);
+            $k = trim($p[0]);
+            if ($k === '') continue;
+            $itens[$k] = isset($p[1]) ? trim($p[1]) : $k;
+        }
+        if (!$itens || count($itens) > 5000) return '<p class="ei-erro">Enlaces iluminados: itens inválidos.</p>';
+        $modo_itens = true;
+    } else {
+        $desde = (int) $a['desde'];
+        $hasta = (int) $a['hasta'];
+        if ($hasta < $desde || $hasta - $desde > 5000) {
+            return '<p class="ei-erro">Enlaces iluminados: configuração inválida (desde, hasta).</p>';
+        }
+        for ($n = $desde; $n <= $hasta; $n++) $itens[(string) $n] = (string) $n;
+        $modo_itens = false;
+    }
+    $estilo = $a['estilo'] !== '' ? $a['estilo'] : ($modo_itens ? 'lista' : 'grade');
+
     $slugs = [];
-    for ($n = $desde; $n <= $hasta; $n++) {
-        $slugs[$n] = sanitize_title(str_replace('{n}', (string) $n, $a['slug']));
+    foreach ($itens as $k => $t) {
+        $slugs[$k] = sanitize_title(str_replace('{n}', (string) $k, $a['slug']));
     }
 
     global $wpdb;
@@ -58,6 +88,44 @@ function ei_montar($a) {
         foreach ($rows as $r) $links[$r->post_name] = get_permalink((int) $r->ID);
     }
 
+    $total = count($itens);
+    $x = 0;
+    foreach ($slugs as $s) if (isset($links[$s])) $x++;
+    $troca = function ($modelo, $k) use ($itens) {
+        return str_replace(['{n}', '{t}'], [(string) $k, $itens[$k]], $modelo);
+    };
+    $resumo = trim($a['resumo']) !== ''
+        ? '<p class="ei-resumo">' . str_replace(['{x}', '{total}'], ['<strong>' . $x . '</strong>', '<strong>' . $total . '</strong>'], esc_html($a['resumo'])) . '</p>'
+        : '';
+
+    if ($estilo === 'lista') {
+        $classe = trim('ei-lista ' . preg_replace('/[^A-Za-z0-9_\- ]/', '', $a['classe']));
+        $out = '<ul class="' . esc_attr($classe) . '">';
+        foreach ($itens as $k => $t) {
+            $txt = esc_html($troca($a['texto'], $k));
+            $s = $slugs[$k];
+            if (isset($links[$s])) {
+                $tit = $troca($a['titulo'], $k);
+                $out .= '<li><a href="' . esc_url($links[$s]) . '"' . ($a['titulo'] !== '{n}' ? ' title="' . esc_attr($tit) . '"' : '') . '>' . $txt . '</a></li>';
+            } else {
+                $out .= '<li>' . ($a['pendente'] !== '' ? '<span title="' . esc_attr($troca($a['pendente'], $k)) . '">' . $txt . '</span>' : $txt) . '</li>';
+            }
+        }
+        return $resumo . $out . '</ul>';
+    }
+
+    if ($modo_itens) {
+        $out = '<div class="ei-indice" style="--ei-cor:' . (sanitize_hex_color($a['cor']) ?: '#b8913a') . '">' . $resumo . '<ul class="ei-grade">';
+        foreach ($itens as $k => $t) {
+            $txt = esc_html($troca($a['texto'], $k));
+            $s = $slugs[$k];
+            $out .= isset($links[$s])
+                ? '<li><a href="' . esc_url($links[$s]) . '" title="' . esc_attr($troca($a['titulo'], $k)) . '">' . $txt . '</a></li>'
+                : '<li><span' . ($a['pendente'] !== '' ? ' title="' . esc_attr($troca($a['pendente'], $k)) . '"' : '') . '>' . $txt . '</span></li>';
+        }
+        return $out . '</ul></div>';
+    }
+
     $grupos = [];
     if (trim($a['grupos']) !== '') {
         foreach (explode('|', $a['grupos']) as $g) {
@@ -66,20 +134,13 @@ function ei_montar($a) {
     }
     if (!$grupos) $grupos[] = [$desde, $hasta, ''];
 
-    $total = $hasta - $desde + 1;
-    $x = 0;
-    foreach ($slugs as $s) if (isset($links[$s])) $x++;
-
     $cor = sanitize_hex_color($a['cor']) ?: '#b8913a';
-    $out = '<div class="ei-indice" style="--ei-cor:' . $cor . '">';
-    if (trim($a['resumo']) !== '') {
-        $out .= '<p class="ei-resumo">' . str_replace(['{x}', '{total}'], ['<strong>' . $x . '</strong>', '<strong>' . $total . '</strong>'], esc_html($a['resumo'])) . '</p>';
-    }
+    $out = '<div class="ei-indice" style="--ei-cor:' . $cor . '">' . $resumo;
     foreach ($grupos as $g) {
         if ($g[2] !== '') $out .= '<p class="ei-grupo">' . esc_html($g[2]) . '</p>';
         $out .= '<ul class="ei-grade">';
         for ($n = max($g[0], $desde); $n <= min($g[1], $hasta); $n++) {
-            $s = $slugs[$n];
+            $s = $slugs[(string) $n];
             if (isset($links[$s])) {
                 $out .= '<li><a href="' . esc_url($links[$s]) . '" title="' . esc_attr(str_replace('{n}', $n, $a['titulo'])) . '">' . $n . '</a></li>';
             } else {
