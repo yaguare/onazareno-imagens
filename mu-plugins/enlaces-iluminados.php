@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.2.0
+ * Version: 1.3.0
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -34,6 +34,18 @@
  *   [enlace_iluminado slug="signo-20-de-abril"]20 de abril[/enlace_iluminado]
  *   Enquanto o post não existe, mostra só o texto; ao publicar, o <a href> é gravado no conteúdo.
  *   Atributos: slug (exato, sem {n}), tipo (padrão post).
+ *
+ * Marcado automático (1.3.0) — mapa de entidades por site:
+ *   - O mapa (option ei_mapa: [forma, slug] + tope) é carregado pela ability enlaces-iluminados/cargar-mapa,
+ *     que baixa um JSON de raw.githubusercontent.com. Sem mapa, o site não marca nada.
+ *   - Cada post (post_type post) salvo como publish/future é marcado antes de gravar: cada forma do mapa
+ *     vira [enlace_iluminado slug="..."]forma[/enlace_iluminado].
+ *   - Regras: ganha a forma mais longa; só a primeira aparição de cada slug; nunca o próprio slug;
+ *     nunca em títulos h1-h6, <script>, <style>, <a>, comentários, shortcodes nem atributos; maiúsculas
+ *     exatas; tope de marcas por post (contando as que já havia).
+ *   - Meta _ei_no_marcar = 1 num post desliga o marcado automático nele.
+ *   - Ability enlaces-iluminados/marcar-posts: marca posts já existentes (dry_run por padrão).
+ *   - Ao publicar/despublicar um post, só se reescrevem os posts que apontam para ele (e os índices).
  */
 if (!defined('ABSPATH')) exit;
 
@@ -238,27 +250,320 @@ function ei_reescrever_tudo() {
     }
 }
 
-function ei_agendar() {
-    static $feito = false;
-    if ($feito) return;
-    $feito = true;
-    add_action('shutdown', 'ei_reescrever_tudo');
+/* Reescreve uma lista de IDs. */
+function ei_reescrever_ids($ids) {
+    global $wpdb;
+    foreach (array_unique(array_map('intval', $ids)) as $id) {
+        if ($id <= 0) continue;
+        $atual = get_post_field('post_content', $id, 'raw');
+        if (!is_string($atual) || !ei_tem_tag($atual)) continue;
+        $novo = ei_reescrever_conteudo($atual);
+        if ($novo !== $atual) {
+            $wpdb->update($wpdb->posts, ['post_content' => $novo], ['ID' => $id]);
+            clean_post_cache($id);
+        }
+    }
 }
 
-/* Gatilhos: publicação/despublicação, troca de slug e páginas com o shortcode salvas. */
+/* Pendências do request: tudo, ou só os posts que apontam para certos slugs + IDs avulsos. */
+$GLOBALS['ei_pend'] = ['tudo' => false, 'slugs' => [], 'ids' => []];
+
+function ei_agendar($slugs = null, $ids = []) {
+    static $hook = false;
+    if ($slugs === null) {
+        $GLOBALS['ei_pend']['tudo'] = true;
+    } else {
+        foreach ((array) $slugs as $s) if ($s !== '') $GLOBALS['ei_pend']['slugs'][$s] = true;
+    }
+    foreach ((array) $ids as $i) $GLOBALS['ei_pend']['ids'][(int) $i] = true;
+    if (!$hook) {
+        $hook = true;
+        add_action('shutdown', 'ei_processar_pendentes');
+    }
+}
+
+function ei_processar_pendentes() {
+    $p = $GLOBALS['ei_pend'];
+    $GLOBALS['ei_pend'] = ['tudo' => false, 'slugs' => [], 'ids' => []];
+    if ($p['tudo']) {
+        ei_reescrever_tudo();
+        return;
+    }
+    global $wpdb;
+    $ids = array_keys($p['ids']);
+    if ($p['slugs']) {
+        // Índices (poucas páginas): sempre, porque dependem de padrões de slug.
+        $ids = array_merge($ids, $wpdb->get_col($wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status IN ('publish','draft','future','pending','private') AND post_type NOT IN ('revision','nav_menu_item')",
+            '%' . $wpdb->esc_like('[' . EI_TAG . ' ') . '%'
+        )));
+        // Links em linha: só os posts que citam esses slugs.
+        foreach (array_keys($p['slugs']) as $s) {
+            $ids = array_merge($ids, $wpdb->get_col($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status IN ('publish','draft','future','pending','private') AND post_type NOT IN ('revision','nav_menu_item')",
+                '%' . $wpdb->esc_like('slug="' . $s . '"') . '%'
+            )));
+        }
+    }
+    ei_reescrever_ids($ids);
+}
+
+/* Gatilhos: publicação/despublicação, troca de slug e posts com o shortcode salvos. */
 add_action('transition_post_status', function ($novo, $antigo, $post) {
     if ($novo === $antigo || in_array($post->post_type, ['revision', 'nav_menu_item'], true)) return;
-    if ($novo === 'publish' || $antigo === 'publish') ei_agendar();
+    if ($novo === 'publish' || $antigo === 'publish') ei_agendar([$post->post_name], [$post->ID]);
 }, 10, 3);
 
 add_action('post_updated', function ($id, $depois, $antes) {
-    if ($depois->post_status === 'publish' && $depois->post_name !== $antes->post_name) ei_agendar();
+    if ($depois->post_status === 'publish' && $depois->post_name !== $antes->post_name) {
+        ei_agendar([$depois->post_name, $antes->post_name], [$id]);
+    }
 }, 10, 3);
 
 add_action('save_post', function ($id, $post) {
     if (wp_is_post_revision($id)) return;
-    if (ei_tem_tag((string) $post->post_content)) ei_agendar();
+    if (ei_tem_tag((string) $post->post_content)) ei_agendar([], [$id]);
 }, 10, 2);
+
+/* ===================== Marcado automático (1.3.0) ===================== */
+
+const EI_PROTEGIDAS = '~<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>|<h([1-6])\b.*?</h\1>|<a\b.*?</a>|\[enlaces_iluminados\b.*?\[/enlaces_iluminados\]|\[enlace_iluminado\b.*?\[/enlace_iluminado\]|\[[^\]]*\]|<[^>]+>~isu';
+
+/* Mapa carregado: ['tope' => int, 'entradas' => [[forma, slug], ...]] ou null. */
+function ei_mapa() {
+    static $m = false;
+    if ($m === false) {
+        $o = get_option('ei_mapa');
+        $m = (is_array($o) && !empty($o['entradas'])) ? $o : null;
+    }
+    return $m;
+}
+
+/* Regex de uma forma: limites de palavra Unicode, espaços flexíveis, maiúsculas exatas. */
+function ei_regex_forma($forma) {
+    $partes = preg_split('/\s+/u', trim($forma), -1, PREG_SPLIT_NO_EMPTY);
+    $partes = array_map(function ($p) { return preg_quote($p, '~'); }, $partes);
+    return '~(?<![\p{L}\p{N}_])' . implode('\s+', $partes) . '(?![\p{L}\p{N}_])~u';
+}
+
+/**
+ * Marca um conteúdo. Devolve [conteudo_novo, [[texto, slug], ...]].
+ */
+function ei_marcar($html, $slug_proprio = '', $mapa = null) {
+    $mapa = $mapa ?: ei_mapa();
+    if (!$mapa || !is_string($html) || $html === '') return [$html, []];
+    $tope = isset($mapa['tope']) ? (int) $mapa['tope'] : 30;
+
+    preg_match_all('/\[enlace_iluminado\s+slug="([^"]+)"/', $html, $ja);
+    $usados = array_fill_keys($ja[1], true);
+    if ($slug_proprio !== '') $usados[$slug_proprio] = true;
+    $existentes = count($ja[1]);
+    if ($existentes >= $tope) return [$html, []];
+
+    // Cópia com as zonas protegidas tapadas (mesmo tamanho em bytes, offsets válidos).
+    $livre = preg_replace_callback(EI_PROTEGIDAS, function ($m) {
+        return str_repeat("\x01", strlen($m[0]));
+    }, $html);
+    if (!is_string($livre)) return [$html, []];
+
+    $cand = [];
+    foreach ($mapa['entradas'] as $e) {
+        list($forma, $slug) = $e;
+        // Sin descartar slugs ya usados: igual compiten por largo (así "Capricornio" dentro de
+        // "horóscopo Capricornio 2027", que es el propio post, no se marca suelto).
+        $prim = strtok($forma, ' ');
+        if ($prim === false || strpos($livre, $prim) === false) continue; // pré-filtro barato
+        if (!preg_match_all(ei_regex_forma($forma), $livre, $mm, PREG_OFFSET_CAPTURE)) continue;
+        foreach ($mm[0] as $x) {
+            $cand[] = [$x[1], $x[1] + strlen($x[0]), $slug, mb_strlen($x[0], 'UTF-8')];
+        }
+    }
+    if (!$cand) return [$html, []];
+
+    // 1) Ganha a forma mais longa em cada sobreposição.
+    usort($cand, function ($a, $b) { return $b[3] <=> $a[3] ?: $a[0] <=> $b[0]; });
+    $ganha = [];
+    foreach ($cand as $c) {
+        foreach ($ganha as $g) {
+            if ($c[0] < $g[1] && $g[0] < $c[1]) continue 2;
+        }
+        $ganha[] = $c;
+    }
+
+    // 2) Primeira aparição de cada slug, com tope.
+    usort($ganha, function ($a, $b) { return $a[0] <=> $b[0]; });
+    $escolhidos = [];
+    foreach ($ganha as $c) {
+        if (isset($usados[$c[2]])) continue;
+        if ($existentes + count($escolhidos) >= $tope) break;
+        $usados[$c[2]] = true;
+        $escolhidos[] = $c;
+    }
+
+    // 3) Reescrita de trás para frente.
+    $out = $html;
+    $marcas = [];
+    foreach (array_reverse($escolhidos) as $c) {
+        $txt = substr($html, $c[0], $c[1] - $c[0]);
+        $out = substr($out, 0, $c[0]) . '[' . EI_TAG_LINHA . ' slug="' . $c[2] . '"]' . $txt . '[/' . EI_TAG_LINHA . ']' . substr($out, $c[1]);
+        array_unshift($marcas, [$txt, $c[2]]);
+    }
+    return [$out, $marcas];
+}
+
+/* Antes de gravar: marca posts publicados ou agendados. */
+add_filter('wp_insert_post_data', function ($data, $postarr) {
+    if (!ei_mapa()) return $data;
+    if (($data['post_type'] ?? '') !== 'post') return $data;
+    if (!in_array($data['post_status'] ?? '', ['publish', 'future'], true)) return $data;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return $data;
+    $id = isset($postarr['ID']) ? (int) $postarr['ID'] : 0;
+    if ($id && get_post_meta($id, '_ei_no_marcar', true)) return $data;
+    $conteudo = wp_unslash($data['post_content']);
+    list($novo, $marcas) = ei_marcar($conteudo, (string) ($data['post_name'] ?? ''));
+    if ($marcas) $data['post_content'] = wp_slash($novo);
+    return $data;
+}, 20, 2);
+
+/* ===================== Abilities (MCP) ===================== */
+
+add_action('wp_abilities_api_categories_init', function () {
+    if (function_exists('wp_register_ability_category')) {
+        wp_register_ability_category('enlaces-iluminados', [
+            'label'       => 'Enlaces iluminados',
+            'description' => 'Mapa de entidades y marcado automático de enlaces internos.',
+        ]);
+    }
+});
+
+add_action('wp_abilities_api_init', function () {
+    if (!function_exists('wp_register_ability')) return;
+    $meta = function ($readonly) {
+        return [
+            'annotations'  => ['readonly' => $readonly, 'destructive' => false, 'idempotent' => true],
+            'show_in_rest' => true,
+            'public'       => true,
+            'mcp'          => ['public' => true],
+        ];
+    };
+    $pode = function () { return current_user_can('edit_others_posts'); };
+
+    wp_register_ability('enlaces-iluminados/cargar-mapa', [
+        'label'       => 'Cargar el mapa de entidades',
+        'description' => 'Descarga el mapa de entidades (JSON con "tope" y "entradas": [[forma, slug], ...]) desde una URL de raw.githubusercontent.com y lo guarda en el sitio. Desde ese momento, cada post que se publique o programe se marca solo. No toca los posts existentes (para eso, marcar-posts).',
+        'category'    => 'enlaces-iluminados',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => ['url' => ['type' => 'string', 'description' => 'URL https de raw.githubusercontent.com (mejor con el hash del commit).']],
+            'required' => ['url'],
+        ],
+        'output_schema' => ['type' => 'object'],
+        'permission_callback' => $pode,
+        'execute_callback' => function ($in = []) {
+            $in = (array) $in;
+            $url = isset($in['url']) ? (string) $in['url'] : '';
+            if (wp_parse_url($url, PHP_URL_HOST) !== 'raw.githubusercontent.com' || wp_parse_url($url, PHP_URL_SCHEME) !== 'https') {
+                return new WP_Error('ei_url', 'Solo se aceptan URLs https de raw.githubusercontent.com.');
+            }
+            $r = wp_remote_get($url, ['timeout' => 30]);
+            if (is_wp_error($r)) return $r;
+            if (wp_remote_retrieve_response_code($r) !== 200) return new WP_Error('ei_http', 'HTTP ' . wp_remote_retrieve_response_code($r));
+            $j = json_decode(wp_remote_retrieve_body($r), true);
+            if (!is_array($j) || empty($j['entradas']) || !is_array($j['entradas'])) return new WP_Error('ei_json', 'JSON inválido: falta "entradas".');
+            $ent = [];
+            $slugs = [];
+            foreach ($j['entradas'] as $e) {
+                if (!is_array($e) || count($e) < 2) continue;
+                $f = trim((string) $e[0]);
+                $s = sanitize_title((string) $e[1]);
+                if ($f === '' || $s === '') continue;
+                $ent[] = [$f, $s];
+                $slugs[$s] = true;
+            }
+            if (!$ent || count($ent) > 50000) return new WP_Error('ei_json', 'Cantidad de entradas inválida.');
+            $tope = isset($j['tope']) ? max(1, min(200, (int) $j['tope'])) : 30;
+            $mapa = ['version' => (string) ($j['version'] ?? ''), 'url' => $url, 'tope' => $tope, 'entradas' => $ent, 'cargado' => current_time('mysql')];
+            update_option('ei_mapa', $mapa, false);
+            return ['version' => $mapa['version'], 'tope' => $tope, 'formas' => count($ent), 'slugs' => count($slugs)];
+        },
+        'meta' => $meta(false),
+    ]);
+
+    wp_register_ability('enlaces-iluminados/estado-mapa', [
+        'label'       => 'Ver el mapa cargado',
+        'description' => 'Devuelve la versión, la URL, el tope y la cantidad de formas y slugs del mapa de entidades cargado en el sitio.',
+        'category'    => 'enlaces-iluminados',
+        'input_schema' => ['type' => 'object', 'properties' => new stdClass()],
+        'output_schema' => ['type' => 'object'],
+        'permission_callback' => $pode,
+        'execute_callback' => function ($in = []) {
+            $m = get_option('ei_mapa');
+            if (!is_array($m)) return ['cargado' => false];
+            return ['cargado' => true, 'version' => $m['version'] ?? '', 'url' => $m['url'] ?? '', 'tope' => $m['tope'] ?? 30,
+                    'formas' => count($m['entradas']), 'slugs' => count(array_unique(array_column($m['entradas'], 1))), 'fecha' => $m['cargado'] ?? ''];
+        },
+        'meta' => $meta(true),
+    ]);
+
+    wp_register_ability('enlaces-iluminados/marcar-posts', [
+        'label'       => 'Marcar posts existentes',
+        'description' => 'Aplica el mapa de entidades a posts ya existentes, directo en el servidor (sin reenviar contenido). Por defecto es una PRUEBA (dry_run true): informa qué marcaría. Para aplicar, repetir con dry_run false. Elegir ids, category o all true. Respeta _ei_no_marcar.',
+        'category'    => 'enlaces-iluminados',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => [
+                'ids'      => ['type' => 'array', 'items' => ['type' => 'integer']],
+                'category' => ['type' => 'integer'],
+                'all'      => ['type' => 'boolean', 'default' => false],
+                'dry_run'  => ['type' => 'boolean', 'default' => true],
+                'detalle'  => ['type' => 'boolean', 'default' => true, 'description' => 'Incluir la lista de marcas de cada post.'],
+                'limit'    => ['type' => 'integer', 'default' => 200, 'minimum' => 1, 'maximum' => 500],
+                'offset'   => ['type' => 'integer', 'default' => 0, 'minimum' => 0],
+            ],
+        ],
+        'output_schema' => ['type' => 'object'],
+        'permission_callback' => $pode,
+        'execute_callback' => function ($in = []) {
+            $in = (array) $in;
+            if (!ei_mapa()) return new WP_Error('ei_mapa', 'No hay mapa cargado (usar cargar-mapa).');
+            $q = ['post_type' => 'post', 'post_status' => ['publish', 'future'], 'posts_per_page' => (int) ($in['limit'] ?? 200),
+                  'offset' => (int) ($in['offset'] ?? 0), 'orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids', 'no_found_rows' => false];
+            if (!empty($in['ids'])) {
+                $q['post__in'] = array_map('intval', $in['ids']);
+            } elseif (!empty($in['category'])) {
+                $q['cat'] = (int) $in['category'];
+            } elseif (empty($in['all'])) {
+                return new WP_Error('ei_filtro', 'Indicar ids, category o all true.');
+            }
+            $wq = new WP_Query($q);
+            $seco = !isset($in['dry_run']) || $in['dry_run'];
+            $detalle = !isset($in['detalle']) || $in['detalle'];
+            global $wpdb;
+            $res = [];
+            $cambiados = 0;
+            $total = 0;
+            foreach ($wq->posts as $id) {
+                if (get_post_meta($id, '_ei_no_marcar', true)) continue;
+                $p = get_post($id);
+                list($novo, $marcas) = ei_marcar($p->post_content, $p->post_name);
+                if (!$marcas) continue;
+                $cambiados++;
+                $total += count($marcas);
+                $item = ['id' => $id, 'titulo' => $p->post_title, 'nuevas' => count($marcas)];
+                if ($detalle) $item['marcas'] = array_map(function ($m) { return $m[0] . ' → ' . $m[1]; }, $marcas);
+                $res[] = $item;
+                if (!$seco) {
+                    $wpdb->update($wpdb->posts, ['post_content' => $novo], ['ID' => $id]);
+                    clean_post_cache($id);
+                    ei_agendar([], [$id]); // completa los <a href> hacia posts ya publicados
+                }
+            }
+            return ['dry_run' => $seco, 'revisados' => count($wq->posts), 'total_filtro' => (int) $wq->found_posts,
+                    'cambiados' => $cambiados, 'marcas' => $total, 'posts' => $res];
+        },
+        'meta' => $meta(false),
+    ]);
+});
 
 /* Protege o índice do wpautop: antes dele (prioridade 9) troca o bloco por um marcador
    de bloco; depois dos shortcodes (12) devolve o HTML gravado. Sem parágrafos vazios. */
