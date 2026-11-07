@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.0.2
+ * Version: 1.0.3
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -177,6 +177,7 @@ add_action('wp_head', function () {
 .ei-grade{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px}
 .ei-grade li{margin:0;padding:0}
 .ei-grade a,.ei-grade span{display:block;text-align:center;padding:9px 0;border-radius:6px;font-weight:600;text-decoration:none}
+.ei-indice .ei-grade li a,.ei-indice .ei-grade li span{display:block !important;width:auto !important;font-size:inherit !important;line-height:1.5 !important}
 .ei-indice .ei-grade a{background:var(--ei-cor);color:#fff !important}
 .ei-indice .ei-grade a:hover{filter:brightness(.85);color:#fff !important}
 .ei-grade span{background:#f1f1f1;color:#aaa}
