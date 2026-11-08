@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Claude – redireccionamientos de Rank Math
  * Description: Habilidades del conector para listar y crear redireccionamientos 301 en Rank Math (por lote, con modo prueba).
- * Version: 1.0.0
+ * Version: 1.1.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -232,6 +232,107 @@ add_action( 'wp_abilities_api_init', function () {
 					'items'    => $created,
 					'skipped'  => $skipped,
 					'errors'   => $errors,
+				);
+			},
+			'permission_callback' => function ( $input ) {
+				return current_user_can( 'edit_others_posts' );
+			},
+			'meta'                => array(
+				'show_in_rest' => true,
+				'annotations'  => array( 'destructive' => false ),
+				'mcp'          => array( 'public' => true ),
+			),
+		)
+	);
+
+	/* ---------- Corregir enlaces internos viejos ---------- */
+	wp_register_ability(
+		'claude-wp/fix-old-links',
+		array(
+			'label'               => 'Corregir enlaces internos que pasan por un redireccionamiento',
+			'description'         => 'Recorre el contenido de posts, páginas y productos y cambia cada enlace interno (href) cuyo destino es el origen de un redireccionamiento de Rank Math por la dirección final, así ningún enlace del sitio pasa por un 301. Toca solo los href, no el texto. Por defecto es una PRUEBA (dry_run true): solo informa qué cambiaría. Para aplicar, repetir con dry_run false. WordPress guarda una revisión de cada post modificado.',
+			'category'            => 'claude-contenido',
+			'input_schema'        => array(
+				'type'       => 'object',
+				'properties' => array(
+					'dry_run' => array( 'type' => 'boolean', 'description' => 'true (por defecto) = solo prueba; false = aplicar.' ),
+					'limit'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 1000, 'description' => 'Máximo de posts a revisar (500 por defecto).' ),
+					'offset'  => array( 'type' => 'integer', 'minimum' => 0, 'description' => 'Saltar los primeros N posts.' ),
+				),
+			),
+			'output_schema'       => array( 'type' => 'object' ),
+			'execute_callback'    => function ( $input ) {
+				$dry    = ! isset( $input['dry_run'] ) || false !== $input['dry_run'];
+				$limit  = isset( $input['limit'] ) ? (int) $input['limit'] : 500;
+				$offset = isset( $input['offset'] ) ? (int) $input['offset'] : 0;
+
+				$all = claude_redir_all();
+				if ( is_wp_error( $all ) ) {
+					return $all;
+				}
+				$map = array();
+				foreach ( $all as $r ) {
+					if ( 'active' !== $r['status'] || ! in_array( $r['header_code'], array( 301, 302, 307 ), true ) ) {
+						continue;
+					}
+					foreach ( $r['sources'] as $s ) {
+						if ( 'exact' === $s['comparison'] ) {
+							$map[ strtolower( trim( $s['pattern'], '/' ) ) ] = $r['url_to'];
+						}
+					}
+				}
+				if ( ! $map ) {
+					return array( 'mensaje' => 'No hay redireccionamientos exactos activos.' );
+				}
+
+				$host = preg_quote( wp_parse_url( home_url(), PHP_URL_HOST ), '#' );
+				$re   = '#(href\s*=\s*["\'])((?:https?:)?//(?:www\.)?' . $host . ')?(/[^"\'\#?\s]*)([^"\']*)(["\'])#i';
+
+				$q = new WP_Query( array(
+					'post_type'      => array( 'post', 'page', 'product' ),
+					'post_status'    => array( 'publish', 'future', 'draft', 'private', 'pending' ),
+					'posts_per_page' => $limit,
+					'offset'         => $offset,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'no_found_rows'  => false,
+				) );
+
+				$changed = array();
+				$total   = 0;
+				foreach ( $q->posts as $pid ) {
+					$content = get_post_field( 'post_content', $pid, 'raw' );
+					$hits    = array();
+					$new     = preg_replace_callback( $re, function ( $m ) use ( $map, &$hits ) {
+						$key = strtolower( trim( rawurldecode( $m[3] ), '/' ) );
+						if ( '' === $key || ! isset( $map[ $key ] ) ) {
+							return $m[0];
+						}
+						$hits[] = $m[3] . ' → ' . $map[ $key ];
+						return $m[1] . $map[ $key ] . $m[4] . $m[5];
+					}, $content );
+					if ( $hits && $new !== $content ) {
+						$total += count( $hits );
+						$changed[] = array(
+							'id'      => $pid,
+							'title'   => get_the_title( $pid ),
+							'enlaces' => count( $hits ),
+							'detalle' => array_slice( $hits, 0, 20 ),
+						);
+						if ( ! $dry ) {
+							wp_update_post( array( 'ID' => $pid, 'post_content' => wp_slash( $new ) ) );
+						}
+					}
+				}
+
+				return array(
+					'dry_run'           => $dry,
+					'posts_revisados'   => count( $q->posts ),
+					'posts_en_total'    => (int) $q->found_posts,
+					'posts_con_cambios' => count( $changed ),
+					'enlaces'           => $total,
+					'items'             => $changed,
 				);
 			},
 			'permission_callback' => function ( $input ) {
