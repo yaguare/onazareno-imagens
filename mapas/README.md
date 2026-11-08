@@ -22,3 +22,9 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-orbelis.xlsx orbelis.json <version> orbelis.com.br`.
 - Regla propia: toda fecha completa ("5 de março") se enlaza a su post "nascidos em", también en los horóscopos.
 - Excepciones respetadas: 21 slugs de Libra con "nascidos-en", `compatibilidade-capricornio-e-gemini`, `cancer-e-touro`, `signo-virgem`; el 1 de julho va al post 19571 (el `-1o-` queda fuera del mapa).
+
+## horoscopobrasileiro.com.br
+- Fuente editable: `fuentes/mapa-enlaces-iluminados-horoscopobrasileiro.xlsx` (portugués de Brasil).
+- Regenerar la hoja: `python3 generar_mapa_horoscopobrasileiro.py` (sin inventario; slugs por patrón con sus excepciones).
+- Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-horoscopobrasileiro.xlsx horoscopobrasileiro.json <version> horoscopobrasileiro.com.br`.
+- Destinos: pilares de signo (`signo-{signo}`), planetas (`sol`, `lua`, `venus`...), "nascidos em" (con excepciones de agosto y dezembro), horóscopos 2027 y 2028. Futuros: `lua-nova`, `lua-cheia`, `nascidos-em-3/4-de-setembro`.
