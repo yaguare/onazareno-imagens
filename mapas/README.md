@@ -15,3 +15,10 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Regenerar la hoja: `python3 generar_mapa_venusreports.py` (lee `existentes-venusreports.json`).
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-venusreports.xlsx venusreports.json <version> venusreports.com`.
 - Fila de bloqueo: "Venus Reports" apunta a `ei-bloqueo-venus-reports`, un slug que nunca se publica, para que la marca no enlace al planeta Venus.
+
+## orbelis.com.br
+- Fuente editable: `fuentes/mapa-enlaces-iluminados-orbelis.xlsx` (portugués de Brasil; slugs reales del sitio con sus excepciones).
+- Regenerar la hoja: `python3 generar_mapa_orbelis.py` (lee `existentes-orbelis.json`, inventario del 07/11/2026: 776 posts).
+- Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-orbelis.xlsx orbelis.json <version> orbelis.com.br`.
+- Regla propia: toda fecha completa ("5 de março") se enlaza a su post "nascidos em", también en los horóscopos.
+- Excepciones respetadas: 21 slugs de Libra con "nascidos-en", `compatibilidade-capricornio-e-gemini`, `cancer-e-touro`, `signo-virgem`; el 1 de julho va al post 19571 (el `-1o-` queda fuera del mapa).
