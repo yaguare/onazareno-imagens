@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enlaces iluminados
  * Description: Índice de uma série de posts (1-150, capítulos, códigos...) em que cada item vira link FIXO no conteúdo da página no momento em que o post correspondente é publicado. Uso: [enlaces_iluminados slug="salmo-{n}" desde="1" hasta="150"] numa página.
- * Version: 1.3.2
+ * Version: 1.3.3
  *
  * Como funciona
  * - A configuração fica no próprio shortcode, dentro da página (o mesmo arquivo serve para qualquer site).
@@ -50,6 +50,9 @@
  *     contam como usados, e marcas sobrando (para esses destinos ou repetidas) são tiradas.
  *   - (1.3.2) Zona sem marcas: nada se marca dentro de um elemento com a classe "ei-nao"
  *     (ex.: <table class="ei-nao">), e as marcas que já houver ali são tiradas ao salvar.
+ *   - (1.3.3) Correção: os títulos h1-h6 não ficavam protegidos (a regex usava \1 em vez do grupo
+ *     do número do título). Agora nada se marca dentro de h1-h6, e as marcas que já houver ali
+ *     são tiradas ao salvar (fica só o texto), igual às zonas "ei-nao".
  */
 if (!defined('ABSPATH')) exit;
 
@@ -332,7 +335,8 @@ add_action('save_post', function ($id, $post) {
 /* ===================== Marcado automático (1.3.0) ===================== */
 
 const EI_ZONA_NAO = '~<(table|thead|tbody|tr|td|th|p|ul|ol|li|div|span)\b[^>]*\bclass=["\'][^"\']*\bei-nao\b[^"\']*["\'][^>]*>.*?</\1>~isu';
-const EI_PROTEGIDAS = '~<(table|thead|tbody|tr|td|th|p|ul|ol|li|div|span)\b[^>]*\bclass=["\'][^"\']*\bei-nao\b[^"\']*["\'][^>]*>.*?</\1>|<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>|<h([1-6])\b.*?</h\1>|<a\b.*?</a>|\[enlaces_iluminados\b.*?\[/enlaces_iluminados\]|\[enlace_iluminado\b.*?\[/enlace_iluminado\]|\[[^\]]*\]|<[^>]+>~isu';
+const EI_TITULOS = '~<h([1-6])\b[^>]*>.*?</h\1>~isu';
+const EI_PROTEGIDAS = '~<(table|thead|tbody|tr|td|th|p|ul|ol|li|div|span)\b[^>]*\bclass=["\'][^"\']*\bei-nao\b[^"\']*["\'][^>]*>.*?</\1>|<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>|<h([1-6])\b.*?</h\2>|<a\b.*?</a>|\[enlaces_iluminados\b.*?\[/enlaces_iluminados\]|\[enlace_iluminado\b.*?\[/enlace_iluminado\]|\[[^\]]*\]|<[^>]+>~isu';
 
 /* Mapa carregado: ['tope' => int, 'entradas' => [[forma, slug], ...]] ou null. */
 function ei_mapa() {
@@ -411,6 +415,16 @@ function ei_marcar($html, $slug_proprio = '', $mapa = null) {
         }, $z[0]);
     }, $html);
     if (is_string($semzona)) $html = $semzona;
+
+    // (1.3.3) Títulos h1-h6: mesma limpeza (fica só o texto).
+    $semtit = preg_replace_callback(EI_TITULOS, function ($z) use (&$tiradas_nao) {
+        return preg_replace_callback('~\[enlace_iluminado\b[^\]]*slug="([^"]*)"[^\]]*\](.*?)\[/enlace_iluminado\]~is', function ($m) use (&$tiradas_nao) {
+            $txt = strip_tags($m[2]);
+            $tiradas_nao[] = [$txt, $m[1]];
+            return $txt;
+        }, $z[0]);
+    }, $html);
+    if (is_string($semtit)) $html = $semtit;
 
     // Limpeza: tira marcas para destinos já enlaçados à mão/por índice, para o próprio post
     // ou repetidas (fica a primeira). Um destino = um texto âncora por post.
