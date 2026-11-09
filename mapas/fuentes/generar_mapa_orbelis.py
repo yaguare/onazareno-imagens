@@ -227,11 +227,13 @@ add("Planetas", "Conceito", "Planetas regentes",
     ["planeta regente", "planetas regentes", "regente do signo", "regência planetária"], "planetas-regentes", A)
 add("Retrógrados", "Pilar", "Planetas retrógrados",
     ["planetas retrógrados", "planeta retrógrado", "retrogradação", "retrogradações", "retrógrado",
-     "retrógrada"], "planetas-retrogrados", A)
+     "retrógrada"], "planetas-retrogrados-e-seus-efeitos", A)  # post 21854 (slug con todas las palabras del título)
+# Slugs reales de los posts ya escritos (regla: el slug lleva todas las palabras del título)
+SLUG_RETRO = {"mercurio": "o-que-significa-mercurio-retrogrado"}  # post 21853
 for k, P in PLANETAS:
     add("Retrógrados", "Planeta", f"{P} retrógrado",
         [f"{P} retrógrado", f"{P} Retrógrado", f"retrogradação de {P}", f"{P} fica retrógrado",
-         f"{P} entra em movimento retrógrado"], f"{k}-retrogrado", A)
+         f"{P} entra em movimento retrógrado"], SLUG_RETRO.get(k, f"{k}-retrogrado"), A)
 
 # ---------- Casas ----------
 add("Casas", "Pilar", "As casas astrológicas",
