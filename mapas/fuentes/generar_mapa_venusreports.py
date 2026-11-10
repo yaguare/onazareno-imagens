@@ -61,6 +61,9 @@ for k, S, gent in SIGNOS:
     add("Signs", "In love", f"{S} in Love",
         [f"{S} in love", f"{S} in Love", f"{S} lover", f"{S} lovers", f"{S} in relationships"],
         f"{k}-in-love", S, "\"A and B in love\" gana y va a la pareja.")
+    add("Signs", "In bed", f"{S} in Bed",
+        [f"{S} in bed", f"{S} in Bed", f"{S} sexually", f"{S} sexuality"],
+        f"{k}-in-bed", S, "Página propia (nov 2026). No enlazar desde páginas de anuncios de Meta.")
 
 add("Signs", "General pillar", "The Zodiac Signs",
     ["zodiac signs", "signs of the zodiac", "the 12 signs", "the twelve signs", "zodiac"],
