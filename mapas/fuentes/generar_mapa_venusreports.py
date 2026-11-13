@@ -221,6 +221,65 @@ for k, nom, f, nota in [
 ]:
     add("Concepts", "Concept", nom, f, k, A, nota)
 
+# ---------- Angel Numbers (decisión 13/11/2026) ----------
+AN = "Angel Numbers"
+add("Angel Numbers", "Pillar", "Angel Numbers",
+    ["angel numbers", "Angel Numbers", "angel number", "Angel Number", "angel number meanings"],
+    "angel-numbers", AN, "Slug de post; la categoría tiene el mismo slug pero URL distinta (/category/).")
+NUMEROS = ["444", "222", "555", "1111", "111", "333", "777", "1010", "888", "1212", "999", "666", "2222",
+           "1234", "911", "4444", "3333", "6666", "1144", "1155", "919", "5555", "1414", "1222", "717",
+           "7777", "818", "8888", "1221", "808", "1313", "000", "123", "909", "1717", "212", "707", "313",
+           "234", "1133"]
+RELOJ = {"111": "1:11", "222": "2:22", "333": "3:33", "444": "4:44", "555": "5:55", "1111": "11:11",
+         "1010": "10:10", "1212": "12:12", "1234": "12:34"}
+for N in NUMEROS:
+    formas = [f"{N} angel number", f"{N} Angel Number", f"angel number {N}", f"Angel Number {N}",
+              f"{N} meaning", f"{N} twin flame meaning"]
+    if N in RELOJ:
+        formas.append(RELOJ[N])
+    add("Angel Numbers", "Number", f"{N} Angel Number", formas, f"{N}-angel-number", AN,
+        "Primera tanda (40 por volumen). El número a secas NO se marca.")
+
+# ---------- Twin Flames (6 páginas aprobadas 13/11/2026) ----------
+TF = "Twin Flames"
+for k, nom, f, nota in [
+    ("what-is-a-twin-flame", "What Is a Twin Flame",
+     ["twin flame", "twin flames", "Twin flame", "Twin flames", "Twin Flame", "Twin Flames",
+      "twin flame meaning", "what is a twin flame", "twin flame relationship", "twin souls"], "Pilar."),
+    ("twin-flame-vs-soulmate", "Twin Flame vs Soulmate",
+     ["twin flame vs soulmate", "twin flame vs. soulmate", "soulmate vs twin flame",
+      "twin flames and soulmates", "twin flame or soulmate", "twin flame or a soulmate"],
+     "\"soulmate\" sola NO se marca."),
+    ("karmic-relationship", "Karmic Relationship vs Twin Flame",
+     ["karmic relationship", "karmic relationships", "karmic soulmate", "karmic soul mate",
+      "karmic partner", "karmic connection"], ""),
+    ("twin-flame-signs", "Twin Flame Signs",
+     ["twin flame signs", "signs of a twin flame", "signs you've met your twin flame",
+      "twin flame connection"], ""),
+    ("twin-flame-stages", "Twin Flame Stages",
+     ["twin flame stages", "stages of a twin flame", "twin flame separation", "twin flame reunion",
+      "runner and chaser", "runner and the chaser"], ""),
+    ("twin-flame-zodiac-signs", "Twin Flame Zodiac Signs",
+     ["twin flame zodiac signs", "twin flame zodiac sign", "twin flames in astrology"], ""),
+]:
+    add("Twin Flames", "Page", nom, f, k, TF, nota)
+
+# ---------- Herramientas futuras (proyectadas 13/11/2026) ----------
+for k, nom, f, ca in [
+    ("angel-number-calculator", "Find Your Angel Number (calculator)",
+     ["find your angel number", "find my angel number", "angel number calculator", "personal angel number",
+      "birthday angel number", "your angel number"], AN),
+    ("twin-flame-calculator", "Twin Flame Calculator (by date of birth)",
+     ["twin flame calculator", "twin flame test", "twin flame test by date of birth", "find your twin flame",
+      "find my twin flame"], TF),
+    ("mirror-hours", "Mirror Hours (time on the clock)",
+     ["mirror hour", "mirror hours", "Mirror Hours", "repeating numbers on the clock",
+      "repeating times on the clock"], AN),
+    ("twin-flame-reading", "Twin Flame Reading (daily)",
+     ["twin flame reading", "twin flame readings", "daily twin flame reading", "twin flame reading today"], TF),
+]:
+    add("Tools", "Tool", nom, f, k, ca, "Herramienta futura: publicarla con este slug exacto.")
+
 # Bloqueo: "Venus Reports" (la marca) no debe marcarse como el planeta Venus.
 # Gana por ser más larga y apunta a un slug que NUNCA se publica: el lector ve solo el texto.
 add("Site", "Bloqueo", "Venus Reports (marca, no es el planeta)", ["Venus Reports"], "ei-bloqueo-venus-reports", A,
