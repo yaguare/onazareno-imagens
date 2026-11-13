@@ -10,6 +10,8 @@ Familias elegidas por Daniel (13/11/2026):
 - Fechas -> "nascidos em" (post principal, el que no lleva "(I)"): signo-{signo}-nascidos-em-{d}-de-{mes}.
 - Ángeles cabalísticos: anjo-{nome} (nombre suelto o "Anjo X").
 - Signos -> pilar del signo: signo-{signo} (nombre con mayúscula y gentilicios).
+- Planetas (13/11): mercurio, venus, marte, jupiter, saturno, urano, netuno, plutao,
+  planetas-astrologicos-o-sol, planetas-astrologicos-a-lua y la pilar os-planetas-astrologicos.
 - "O signo X e o Amor" (slug real de cada signo) y Horóscopo Chinês 2027 (pilar y animales, solo por título).
 """
 import json, re, unicodedata
@@ -64,6 +66,18 @@ for k, S, gent in SIGNOS:
     add("Signos", "Pilar do signo", f"Signo {S}",
         [f"Signo {S}", f"signo {S}", f"signo de {S}", f"Signo de {S}", S] + gent, f"signo-{k}",
         "Mayúsculas exactas: el nombre solo con mayúscula.")
+
+# ---------- Planetas (existentes, cat. Astrologia) ----------
+add("Planetas", "Pilar", "Os planetas astrológicos",
+    ["Os planetas astrológicos", "os planetas astrológicos", "planetas astrológicos", "Planetas astrológicos",
+     "planetas na astrologia"], "os-planetas-astrologicos")
+add("Planetas", "Luminar", "O Sol", ["o Sol", "O Sol"], "planetas-astrologicos-o-sol",
+    "Solo con artículo y mayúscula (\"Sol Áries Lua Touro\" no se marca).")
+add("Planetas", "Luminar", "A Lua", ["a Lua", "A Lua"], "planetas-astrologicos-a-lua",
+    "\"Lua Nova\"/\"Lua Cheia\" con artículo también marcan la Lua.")
+for k, P in [("mercurio", "Mercúrio"), ("venus", "Vênus"), ("marte", "Marte"), ("jupiter", "Júpiter"),
+             ("saturno", "Saturno"), ("urano", "Urano"), ("netuno", "Netuno"), ("plutao", "Plutão")]:
+    add("Planetas", "Planeta", P, [P, f"planeta {P}"], k, "Solo con mayúscula.")
 
 # ---------- O signo X e o Amor ----------
 for k, S, _ in SIGNOS:

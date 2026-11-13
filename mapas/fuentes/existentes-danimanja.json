@@ -11630,5 +11630,765 @@
 "cats": [
 8
 ]
+},
+{
+"id": 18025,
+"slug": "compatibilidade-peixes-e-peixes",
+"title": "Compatibilidade Peixes e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 18017,
+"slug": "compatibilidade-aquario-e-peixes",
+"title": "Compatibilidade Aquário e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 18014,
+"slug": "compatibilidade-aquario-e-aquario",
+"title": "Compatibilidade Aquário e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 18005,
+"slug": "compatibilidade-capricornio-e-peixes",
+"title": "Compatibilidade Capricórnio e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 18002,
+"slug": "compatibilidade-capricornio-e-aquario",
+"title": "Compatibilidade Capricórnio e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17997,
+"slug": "compatibilidade-capricornio-e-capricornio",
+"title": "Compatibilidade Capricórnio e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17989,
+"slug": "compatibilidade-sagitario-e-peixes",
+"title": "Compatibilidade Sagitário e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17974,
+"slug": "compatibilidade-sagitario-e-aquario",
+"title": "Compatibilidade Sagitário e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 24006,
+"slug": "signos-de-terra",
+"title": "Signos de Terra",
+"cats": [
+16
+]
+},
+{
+"id": 24002,
+"slug": "signos-de-fogo",
+"title": "Signos de Fogo",
+"cats": [
+16
+]
+},
+{
+"id": 23999,
+"slug": "signos-de-agua",
+"title": "Signos de Água",
+"cats": [
+16
+]
+},
+{
+"id": 23996,
+"slug": "signos-de-ar",
+"title": "Signos de Ar",
+"cats": [
+16
+]
+},
+{
+"id": 23484,
+"slug": "casal-aries-virgem",
+"title": "Casal Áries Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 23479,
+"slug": "casal-aries-leao",
+"title": "Casal Áries Leão",
+"cats": [
+16
+]
+},
+{
+"id": 23433,
+"slug": "casal-aries-cancer",
+"title": "Casal Áries Câncer",
+"cats": [
+16
+]
+},
+{
+"id": 23429,
+"slug": "casal-aries-gemeos",
+"title": "Casal Áries Gêmeos",
+"cats": [
+16
+]
+},
+{
+"id": 23421,
+"slug": "casal-aries-touro",
+"title": "Casal Áries Touro",
+"cats": [
+16
+]
+},
+{
+"id": 23417,
+"slug": "casal-aries-aries",
+"title": "Casal Áries Áries",
+"cats": [
+16
+]
+},
+{
+"id": 17560,
+"slug": "compatibilidade-aries-e-aries",
+"title": "Compatibilidade Áries e Áries",
+"cats": [
+16
+]
+},
+{
+"id": 17564,
+"slug": "compatibilidade-aries-e-touro",
+"title": "Compatibilidade Áries e Touro",
+"cats": [
+16
+]
+},
+{
+"id": 17578,
+"slug": "compatibilidade-aries-e-leao",
+"title": "Compatibilidade Aries e Leão",
+"cats": [
+16
+]
+},
+{
+"id": 17575,
+"slug": "compatibilidade-aries-e-cancer",
+"title": "Compatibilidade Áries e Câncer",
+"cats": [
+16
+]
+},
+{
+"id": 17572,
+"slug": "compatibilidade-aries-e-gemeos",
+"title": "Compatibilidade Áries e Gêmeos",
+"cats": [
+16
+]
+},
+{
+"id": 17590,
+"slug": "compatibilidade-aries-e-libra",
+"title": "Compatibilidade Áries e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17581,
+"slug": "compatibilidade-aries-e-virgem",
+"title": "Compatibilidade Áries e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17596,
+"slug": "compatibilidade-aries-e-sagitario",
+"title": "Compatibilidade Áries e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17593,
+"slug": "compatibilidade-aries-e-escorpiao",
+"title": "Compatibilidade Áries e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17668,
+"slug": "compatibilidade-touro-e-gemeos",
+"title": "Compatibilidade Touro e Gêmeos",
+"cats": [
+16
+]
+},
+{
+"id": 17665,
+"slug": "compatibilidade-touro-e-touro",
+"title": "Compatibilidade Touro e Touro",
+"cats": [
+16
+]
+},
+{
+"id": 17677,
+"slug": "compatibilidade-touro-e-leao",
+"title": "Compatibilidade Touro e Leão",
+"cats": [
+16
+]
+},
+{
+"id": 17674,
+"slug": "compatibilidade-touro-e-cancer",
+"title": "Compatibilidade Touro e Câncer",
+"cats": [
+16
+]
+},
+{
+"id": 17680,
+"slug": "compatibilidade-touro-e-virgem",
+"title": "Compatibilidade Touro e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17689,
+"slug": "compatibilidade-touro-e-escorpiao",
+"title": "Compatibilidade Touro e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17686,
+"slug": "compatibilidade-touro-e-libra",
+"title": "Compatibilidade Touro e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17692,
+"slug": "compatibilidade-touro-e-sagitario",
+"title": "Compatibilidade Touro e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 20320,
+"slug": "como-tirar-proveito-das-fases-da-lua",
+"title": "Como tirar proveito das fases da Lua",
+"cats": [
+16
+]
+},
+{
+"id": 20315,
+"slug": "o-dom-de-cada-signo-do-zodiaco",
+"title": "O dom de cada signo do Zodiaco",
+"cats": [
+16
+]
+},
+{
+"id": 17697,
+"slug": "compatibilidade-touro-e-capricornio",
+"title": "Compatibilidade Touro e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17725,
+"slug": "compatibilidade-gemeos-e-gemeos",
+"title": "Compatibilidade Gêmeos e Gêmeos",
+"cats": [
+16
+]
+},
+{
+"id": 17705,
+"slug": "compatibilidade-touro-e-peixes",
+"title": "Compatibilidade Touro e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17700,
+"slug": "compatibilidade-touro-e-aquario",
+"title": "Compatibilidade Touro e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17732,
+"slug": "compatibilidade-gemeos-e-leao",
+"title": "Compatibilidade Gêmeos e Leão",
+"cats": [
+16
+]
+},
+{
+"id": 17728,
+"slug": "compatibilidade-gemeos-e-cancer",
+"title": "Compatibilidade Gêmeos e Câncer",
+"cats": [
+16
+]
+},
+{
+"id": 17741,
+"slug": "compatibilidade-gemeos-e-libra",
+"title": "Compatibilidade Gêmeos e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17737,
+"slug": "compatibilidade-gemeos-e-virgem",
+"title": "Compatibilidade Gêmeos e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17751,
+"slug": "compatibilidade-gemeos-e-capricornio",
+"title": "Compatibilidade Gêmeos e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17748,
+"slug": "compatibilidade-gemeos-e-sagitario",
+"title": "Compatibilidade Gêmeos e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17743,
+"slug": "compatibilidade-gemeos-e-escorpiao",
+"title": "Compatibilidade Gêmeos e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17759,
+"slug": "compatibilidade-gemeos-e-peixes",
+"title": "Compatibilidade Gêmeos e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17756,
+"slug": "compatibilidade-gemeos-e-aquario",
+"title": "Compatibilidade Gêmeos e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17773,
+"slug": "compatibilidade-cancer-e-leao",
+"title": "Compatibilidade Câncer e Leão",
+"cats": [
+16
+]
+},
+{
+"id": 17770,
+"slug": "compatibilidade-cancer-e-cancer",
+"title": "Compatibilidade Câncer e Câncer",
+"cats": [
+16
+]
+},
+{
+"id": 17777,
+"slug": "compatibilidade-cancer-e-virgem",
+"title": "Compatibilidade Câncer e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17787,
+"slug": "compatibilidade-cancer-e-escorpiao",
+"title": "Compatibilidade Câncer e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17782,
+"slug": "compatibilidade-cancer-e-libra",
+"title": "Compatibilidade Câncer e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17790,
+"slug": "compatibilidade-cancer-e-sagitario",
+"title": "Compatibilidade Câncer e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17804,
+"slug": "compatibilidade-cancer-e-peixes",
+"title": "Compatibilidade Câncer e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17800,
+"slug": "compatibilidade-cancer-e-aquario",
+"title": "Compatibilidade Câncer e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17797,
+"slug": "compatibilidade-cancer-e-capricornio",
+"title": "Compatibilidade Câncer e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17819,
+"slug": "compatibilidade-leao-e-virgem",
+"title": "Compatibilidade Leão e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17815,
+"slug": "compatibilidade-leao-e-leao",
+"title": "Compatibilidade Leão e Leão",
+"cats": [
+16
+]
+},
+{
+"id": 17823,
+"slug": "compatibilidade-leao-e-libra",
+"title": "Compatibilidade Leão e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17836,
+"slug": "compatibilidade-leao-e-capricornio",
+"title": "Compatibilidade Leão e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17831,
+"slug": "compatibilidade-leao-e-sagitario",
+"title": "Compatibilidade Leão e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17828,
+"slug": "compatibilidade-leao-e-escorpiao",
+"title": "Compatibilidade Leão e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17844,
+"slug": "compatibilidade-leao-e-peixes",
+"title": "Compatibilidade Leão e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17840,
+"slug": "compatibilidade-leao-e-aquario",
+"title": "Compatibilidade Leão e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17860,
+"slug": "compatibilidade-virgem-e-virgem",
+"title": "Compatibilidade Virgem e Virgem",
+"cats": [
+16
+]
+},
+{
+"id": 17865,
+"slug": "compatibilidade-virgem-e-escorpiao",
+"title": "Compatibilidade Virgem e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17863,
+"slug": "compatibilidade-virgem-e-libra",
+"title": "Compatibilidade Virgem e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17871,
+"slug": "compatibilidade-virgem-e-sagitario",
+"title": "Compatibilidade Virgem e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17877,
+"slug": "compatibilidade-virgem-e-aquario",
+"title": "Compatibilidade Virgem e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17874,
+"slug": "compatibilidade-virgem-e-capricornio",
+"title": "Compatibilidade Virgem e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17881,
+"slug": "compatibilidade-virgem-e-peixes",
+"title": "Compatibilidade Virgem e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17889,
+"slug": "compatibilidade-libra-e-libra",
+"title": "Compatibilidade Libra e Libra",
+"cats": [
+16
+]
+},
+{
+"id": 17895,
+"slug": "compatibilidade-libra-e-sagitario",
+"title": "Compatibilidade Libra e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17892,
+"slug": "compatibilidade-libra-e-escorpiao",
+"title": "Compatibilidade Libra e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17909,
+"slug": "compatibilidade-libra-e-aquario",
+"title": "Compatibilidade Libra e Aquário",
+"cats": [
+16
+]
+},
+{
+"id": 17906,
+"slug": "compatibilidade-libra-e-capricornio",
+"title": "Compatibilidade Libra e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 17912,
+"slug": "compatibilidade-libra-e-peixes",
+"title": "Compatibilidade Libra e Peixes",
+"cats": [
+16
+]
+},
+{
+"id": 17930,
+"slug": "compatibilidade-escorpiao-e-escorpiao",
+"title": "Compatibilidade Escorpião e Escorpião",
+"cats": [
+16
+]
+},
+{
+"id": 17960,
+"slug": "compatibilidade-sagitario-e-sagitario",
+"title": "Compatibilidade Sagitário e Sagitário",
+"cats": [
+16
+]
+},
+{
+"id": 17969,
+"slug": "compatibilidade-sagitario-e-capricornio",
+"title": "Compatibilidade Sagitário e Capricórnio",
+"cats": [
+16
+]
+},
+{
+"id": 12626,
+"slug": "signos-zodiacais",
+"title": "Signos do Zodiaco",
+"cats": [
+16
+]
+},
+{
+"id": 12566,
+"slug": "plutao",
+"title": "Plutão",
+"cats": [
+16
+]
+},
+{
+"id": 12563,
+"slug": "netuno",
+"title": "Netuno",
+"cats": [
+16
+]
+},
+{
+"id": 12560,
+"slug": "urano",
+"title": "Urano",
+"cats": [
+16
+]
+},
+{
+"id": 12556,
+"slug": "saturno",
+"title": "Saturno",
+"cats": [
+16
+]
+},
+{
+"id": 12553,
+"slug": "jupiter",
+"title": "Júpiter",
+"cats": [
+16
+]
+},
+{
+"id": 12550,
+"slug": "marte",
+"title": "Marte",
+"cats": [
+16
+]
+},
+{
+"id": 12547,
+"slug": "venus",
+"title": "Vênus",
+"cats": [
+16
+]
+},
+{
+"id": 12544,
+"slug": "mercurio",
+"title": "Mercúrio",
+"cats": [
+16
+]
+},
+{
+"id": 12539,
+"slug": "planetas-astrologicos-a-lua",
+"title": "Planetas astrológicos: A Lua",
+"cats": [
+16
+]
+},
+{
+"id": 12535,
+"slug": "planetas-astrologicos-o-sol",
+"title": "Planetas astrológicos: O Sol",
+"cats": [
+16
+]
+},
+{
+"id": 12532,
+"slug": "os-planetas-astrologicos",
+"title": "Os planetas astrológicos",
+"cats": [
+16
+]
 }
 ]
