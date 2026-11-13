@@ -35,4 +35,3 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-danimanja.xlsx danimanja.json <version> danimanja.com.br` y después subir `tope` a **45** en el JSON (los anuales por signo tienen 13 títulos pendientes más fechas y signos).
 - Familias (decisión de Daniel, 13/11/2026): horóscopos 2026-2028 por título, fechas -> "nascidos em" (post sin "(I)"), ángeles (`anjo-{nome}`), signos -> `signo-{signo}`, "O signo X e o Amor" y Horóscopo Chinês 2027 (solo por título).
 - Futuros (compromiso de slug): `horoscopo-{signo}-{mes}-2028` y `horoscopo-do-amor-{signo}-2028`.
-- Bloqueos: "Virgem Maria", "Trópico de Capricórnio", "Leão de Judá".

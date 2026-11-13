@@ -11,7 +11,6 @@ Familias elegidas por Daniel (13/11/2026):
 - Ángeles cabalísticos: anjo-{nome} (nombre suelto o "Anjo X").
 - Signos -> pilar del signo: signo-{signo} (nombre con mayúscula y gentilicios).
 - "O signo X e o Amor" (slug real de cada signo) y Horóscopo Chinês 2027 (pilar y animales, solo por título).
-Bloqueos (slug que nunca se publica): "Virgem Maria", "Trópico de Capricórnio", "Leão de Judá".
 """
 import json, re, unicodedata
 from openpyxl import Workbook
@@ -59,12 +58,6 @@ def add(grupo, familia, entidad, formas, slug, nota=""):
             vistas.append(f)
     filas.append((grupo, familia, entidad, " | ".join(vistas), slug, nota))
 
-
-# ---------- Bloqueos ----------
-for frase, sl in [("Virgem Maria", "ei-bloqueo-virgem-maria"),
-                  ("Trópico de Capricórnio", "ei-bloqueo-tropico-de-capricornio"),
-                  ("Leão de Judá", "ei-bloqueo-leao-de-juda")]:
-    add("Bloqueos", "Bloqueo", frase, [frase], sl, "Slug que nunca se publica: evita el enlace al signo.")
 
 # ---------- Signos ----------
 for k, S, gent in SIGNOS:
