@@ -221,6 +221,20 @@ for k, nom, f, nota in [
 ]:
     add("Concepts", "Concept", nom, f, k, A, nota)
 
+# ---------- Ascendentes (agregado 13/11/2026) ----------
+for k, S, _ in SIGNOS:
+    add("Rising", "Rising pillar", f"{S} Rising",
+        [f"{S} rising", f"{S} Rising", f"{S} ascendant", f"{S} Ascendant", f"ascendant in {S}",
+         f"Ascendant in {S}", f"rising in {S}", f"{S} rising sign", f"{S} Rising sign"],
+        f"{k}-rising", S, "Pilar programada 30-31/12/2026. Se enlaza también por grilla desde la pilar del signo.")
+for ks, Ss, _ in SIGNOS:
+    for kr, Sr, _ in SIGNOS:
+        add("Rising", "Sun + Rising", f"{Ss} Sun {Sr} Rising",
+            [f"{Ss} Sun {Sr} Rising", f"{Ss} Sun {Sr} rising", f"{Ss} sun {Sr} rising",
+             f"{Ss} Sun with {Sr} rising", f"{Ss} Sun with {Sr} Rising", f"{Ss} Sun and {Sr} rising",
+             f"{Ss} Sun and {Sr} Rising", f"{Ss} Sun, {Sr} rising", f"{Ss} Sun, {Sr} Rising"],
+            f"{ks}-sun-{kr}-rising", Ss, "Categoría del signo solar. Gana sobre \"<Sign> rising\" por ser más larga.")
+
 # ---------- Angel Numbers (decisión 13/11/2026) ----------
 AN = "Angel Numbers"
 add("Angel Numbers", "Pillar", "Angel Numbers",

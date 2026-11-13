@@ -16,6 +16,7 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-venusreports.xlsx venusreports.json <version> venusreports.com`.
 - Fila de bloqueo: "Venus Reports" apunta a `ei-bloqueo-venus-reports`, un slug que nunca se publica, para que la marca no enlace al planeta Venus.
 - Angel Numbers y Twin Flames (13/11/2026): pilar `angel-numbers`, 40 números `{n}-angel-number` (con su hora espejo cuando existe, ej. "4:44"), 6 páginas de twin flame y 4 herramientas futuras (`angel-number-calculator`, `twin-flame-calculator`, `mirror-hours`, `twin-flame-reading`). Slugs comprometidos.
+- Ascendentes (13/11/2026): pilares `{sign}-rising` ("Aries rising", "ascendant in Aries"…) y 144 combinaciones `{sun}-sun-{rising}-rising` ("Aries Sun Aries Rising", "Aries Sun with Aries rising"…). "ascendant" a secas sigue yendo a `rising-sign` (futura calculadora).
 
 ## orbelis.com.br
 - Fuente editable: `fuentes/mapa-enlaces-iluminados-orbelis.xlsx` (portugués de Brasil; slugs reales del sitio con sus excepciones).
