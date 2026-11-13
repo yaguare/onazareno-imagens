@@ -28,3 +28,11 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Regenerar la hoja: `python3 generar_mapa_horoscopobrasileiro.py` (sin inventario; slugs por patrón con sus excepciones).
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-horoscopobrasileiro.xlsx horoscopobrasileiro.json <version> horoscopobrasileiro.com.br`.
 - Destinos: pilares de signo (`signo-{signo}`), planetas (`sol`, `lua`, `venus`...), "nascidos em" (con excepciones de agosto y dezembro), horóscopos 2027 y 2028. Futuros: `lua-nova`, `lua-cheia`, `nascidos-em-3/4-de-setembro`.
+
+## danimanja.com.br
+- Fuente editable: `fuentes/mapa-enlaces-iluminados-danimanja.xlsx` (portugués de Brasil; slugs reales del inventario).
+- Regenerar la hoja: `python3 generar_mapa_danimanja.py` (lee `existentes-danimanja.json`, inventario del 13/11/2026: 1.454 posts de horóscopo, nascidos em, ángeles, chino y signos).
+- Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-danimanja.xlsx danimanja.json <version> danimanja.com.br` y después subir `tope` a **45** en el JSON (los anuales por signo tienen 13 títulos pendientes más fechas y signos).
+- Familias (decisión de Daniel, 13/11/2026): horóscopos 2026-2028 por título, fechas -> "nascidos em" (post sin "(I)"), ángeles (`anjo-{nome}`), signos -> `signo-{signo}`, "O signo X e o Amor" y Horóscopo Chinês 2027 (solo por título).
+- Futuros (compromiso de slug): `horoscopo-{signo}-{mes}-2028` y `horoscopo-do-amor-{signo}-2028`.
+- Bloqueos: "Virgem Maria", "Trópico de Capricórnio", "Leão de Judá".
