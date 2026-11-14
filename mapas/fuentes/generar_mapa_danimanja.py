@@ -171,6 +171,31 @@ for p in INV:
             [f"Horóscopo Chinês 2027: {A}", f"Horóscopo Chinês 2027 {A}", f"horóscopo chinês 2027 {A}",
              f"horóscopo chinês 2027 {A.lower()}"], p["slug"], "Animal suelto NO se marca (cambia cada año).")
 
+# ---------- Horas iguais y números iguais (14/11/2026) ----------
+# Serie "Horas iguais": cat. Significado das horas (46) y Números iguais (47). Slugs comprometidos.
+# Sin formas de 4 cifras sin dos puntos (2020, 1919... se confunden con años en otros posts).
+# La superpilar "horas-iguais" es una PÁGINA: el marcado solo resuelve posts, así que no va en el mapa.
+for h in range(24):
+    hh = f"{h:02d}"
+    formas = [f"{hh}:{hh}", f"{hh}h{hh}"]
+    if h < 10:
+        formas += [f"{h}:{hh}"] if h else []
+    add("Horas iguais", "Hora igual", f"{hh}:{hh} significado", formas, f"{hh}-{hh}-significado")
+for d in range(1, 10):
+    n = str(d) * 3
+    formas = [n]
+    if d <= 5:
+        formas.append(f"{d}:{d}{d}")  # 1:11 ... 5:55 (forma hora de los números)
+    add("Números iguais", "Número igual", f"{n} significado", formas, f"{n}-significado")
+add("Números iguais", "Guía", "Números dos anjos",
+    ["Números dos anjos", "números dos anjos", "Número dos anjos", "número dos anjos"], "numeros-dos-anjos")
+add("Horas iguais", "Guía", "Horas invertidas",
+    ["Horas invertidas", "horas invertidas", "horas espelhadas", "Horas espelhadas"], "horas-invertidas-significado")
+add("Horas iguais", "Guía", "Horas exatas",
+    ["Horas exatas", "horas exatas"], "horas-exatas-significado")
+add("Horas iguais", "Guía", "Horas iguais no amor",
+    ["Horas iguais no amor", "horas iguais no amor"], "horas-iguais-no-amor")
+
 # ---------- Workbook ----------
 wb = Workbook()
 ws = wb.active
