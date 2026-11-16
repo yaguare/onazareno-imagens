@@ -9,6 +9,7 @@ Familias (slug fijo = compromiso):
 - planetas: el-sol-en-astrologia, la-luna-en-astrologia, planeta-{planeta}; pilar planetas-en-astrologia
 - retrógrados: {planeta}-retrogrado (Mercurio a Plutón)
 - lunaciones y eclipses: luna-nueva, luna-llena, eclipses
+- fechas: nacidos-el-{d}-de-{mes} (366, futuros; toda fecha completa enlaza ahí, también en horóscopos)
 - amor 2027: pilar horoscopo-amor-2027 (post, categoría Amor 2027) y horoscopo-amor-{signo}-2027
 """
 from openpyxl import Workbook
@@ -68,6 +69,19 @@ add("Conceptos", "Lunación", "Luna llena",
 add("Conceptos", "Eclipse", "Eclipses",
     ["eclipses", "Eclipses", "eclipse", "eclipse solar", "eclipse lunar", "eclipse de Sol", "eclipse de Luna",
      "eclipses solares", "eclipses lunares"], "eclipses")
+
+# ---------- Fechas -> nacidos el (futuros) ----------
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
+         "noviembre", "diciembre"]
+DIAS_MES = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+for mi, M in enumerate(MESES):
+    for d in range(1, DIAS_MES[mi] + 1):
+        formas = []
+        for mes in (M, M.capitalize()):
+            formas += [f"{d} de {mes}", f"nacidos el {d} de {mes}", f"nacido el {d} de {mes}",
+                       f"nacida el {d} de {mes}", f"quien nace el {d} de {mes}", f"Nacidos el {d} de {mes}"]
+        add("Fechas", "Nacidos el", f"Nacidos el {d} de {M}", formas, f"nacidos-el-{d}-de-{M}",
+            nota="Futuro. El título y la meta description dicen el signo (\"de qué signo es\").")
 
 # ---------- Horóscopo del amor 2027 ----------
 A = "Amor 2027"

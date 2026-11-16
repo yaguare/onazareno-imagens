@@ -44,4 +44,5 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Regenerar la hoja: `python3 generar_mapa_aramiastral.py` (sin inventario).
 - Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-aramiastral.xlsx aramiastral.json <version> aramiastral.com`.
 - Decisión de Daniel (16/11/2026): solo entidades astrológicas. Ángeles, horas espejo y números quedan afuera.
+- Fechas (16/11/2026): toda fecha completa ("20 de abril") va a `nacidos-el-{d}-de-{mes}` (366, futuros). Después de exportar, subir `tope` a **55** en el JSON.
 - Familias: signos `signo-{signo}`, planetas (`el-sol-en-astrologia`, `la-luna-en-astrologia`, `planeta-{planeta}`, pilar `planetas-en-astrologia`), retrógrados `{planeta}-retrogrado`, `luna-nueva`, `luna-llena`, `eclipses`, horóscopo del amor 2027 (pilar `horoscopo-amor-2027` y `horoscopo-amor-{signo}-2027`, categoría Amor 2027). Todo futuro salvo el amor 2027.
