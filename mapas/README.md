@@ -38,3 +38,10 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Familias (decisión de Daniel, 13/11/2026): planetas (`mercurio`…`plutao`, `planetas-astrologicos-o-sol`, `planetas-astrologicos-a-lua`, pilar `os-planetas-astrologicos`), horóscopos 2026-2028 por título, fechas -> "nascidos em" (post sin "(I)"), ángeles (`anjo-{nome}`), signos -> `signo-{signo}`, "O signo X e o Amor" y Horóscopo Chinês 2027 (solo por título).
 - Futuros (compromiso de slug): `horoscopo-{signo}-{mes}-2028` y `horoscopo-do-amor-{signo}-2028`.
 - Horas iguais (14/11/2026, mapa `2026-11-14.1`): 24 horas `HH-HH-significado` (formas "11:11", "11h11" y "1:01"…"9:09"), 9 números `NNN-significado` ("444" y "4:44"; "1:11"…"5:55"), `numeros-dos-anjos`, `horas-invertidas-significado` (también "horas espelhadas"), `horas-exatas-significado`, `horas-iguais-no-amor`. Sin formas de 4 cifras (se confunden con años). La superpilar `horas-iguais` es una página y el marcado solo resuelve posts: no va en el mapa.
+
+## aramiastral.com
+- Fuente editable: `fuentes/mapa-enlaces-iluminados-aramiastral.xlsx` (castellano neutro).
+- Regenerar la hoja: `python3 generar_mapa_aramiastral.py` (sin inventario).
+- Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-aramiastral.xlsx aramiastral.json <version> aramiastral.com`.
+- Decisión de Daniel (16/11/2026): solo entidades astrológicas. Ángeles, horas espejo y números quedan afuera.
+- Familias: signos `signo-{signo}`, planetas (`el-sol-en-astrologia`, `la-luna-en-astrologia`, `planeta-{planeta}`, pilar `planetas-en-astrologia`), retrógrados `{planeta}-retrogrado`, `luna-nueva`, `luna-llena`, `eclipses`, horóscopo del amor 2027 (pilar `horoscopo-amor-2027` y `horoscopo-amor-{signo}-2027`, categoría Amor 2027). Todo futuro salvo el amor 2027.
