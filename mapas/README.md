@@ -46,3 +46,10 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Decisión de Daniel (16/11/2026): solo entidades astrológicas. Ángeles, horas espejo y números quedan afuera.
 - Fechas (16/11/2026): toda fecha completa ("20 de abril") va a `nacidos-el-{d}-de-{mes}` (366, futuros). Después de exportar, subir `tope` a **55** en el JSON.
 - Familias: signos `signo-{signo}`, planetas (`el-sol-en-astrologia`, `la-luna-en-astrologia`, `planeta-{planeta}`, pilar `planetas-en-astrologia`), retrógrados `{planeta}-retrogrado`, `luna-nueva`, `luna-llena`, `eclipses`, horóscopo del amor 2027 (pilar `horoscopo-amor-2027` y `horoscopo-amor-{signo}-2027`, categoría Amor 2027). Todo futuro salvo el amor 2027.
+
+## horoscopo777.com.br
+- Fuente editable: `fuentes/mapa-enlaces-iluminados-horoscopo777.xlsx` (portugués de Brasil; slugs reales del inventario).
+- Regenerar la hoja: `python3 generar_mapa_horoscopo777.py` (lee `existentes-horoscopo777.json`, inventario del 19/11/2026: 974 posts publicados).
+- Exportar: `python3 exportar_json.py fuentes/mapa-enlaces-iluminados-horoscopo777.xlsx horoscopo777.json <version> horoscopo777.com.br` y después subir `tope` a **55** en el JSON.
+- Familias: signos `signo-{signo}`, fechas -> "nascidos em" (slugs reales, con `nascidos-en` de Libra, `1o-de-julho` y el 6 de janeiro en `signo-capricornio-…`), casas `casa-{n}-astrologia` y `casas-astrologicas`, pilar de planetas, signos do zodíaco, data de nascimento, series por signo (amor, personalidade, homem, mulher, comunicação, como tratar, horóscopo de hoje), compatibilidades y ascendentes existentes, horóscopos 2027 y 2028 por título.
+- Futuros (compromiso de slug): `horoscopo-{signo}-{mes}-2028` y `horoscopo-do-amor-{signo}-2028`.
