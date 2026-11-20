@@ -11,6 +11,8 @@ Familias (slug fijo = compromiso):
 - lunaciones y eclipses: luna-nueva, luna-llena, eclipses
 - fechas: nacidos-el-{d}-de-{mes} (366, futuros; toda fecha completa enlaza ahí, también en horóscopos)
 - amor 2027: pilar horoscopo-amor-2027 (post, categoría Amor 2027) y horoscopo-amor-{signo}-2027
+- ascendentes (20/11/2026): pilar general que-es-el-ascendente (con los planetas), pilares
+  {signo}-y-sus-ascendentes y 144 combinaciones {sol}-ascendente-{asc}, en la categoría del signo solar
 """
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -93,6 +95,23 @@ for k, S, _ in SIGNOS:
         [f"Horóscopo del amor {S} 2027", f"horóscopo del amor {S} 2027", f"horóscopo del amor de {S} 2027",
          f"Horóscopo del amor de {S} 2027", f"horóscopo del amor de {S} para 2027",
          f"horóscopo del amor para {S} en 2027"], f"horoscopo-amor-{k}-2027", A, "En curso")
+
+# ---------- Ascendentes (20/11/2026, futuros) ----------
+# Pilar general (se publica con la serie de los planetas, categoría Astrología):
+add("Ascendentes", "Pilar general", "¿Qué es el ascendente?",
+    ["qué es el ascendente", "Qué es el ascendente", "el ascendente", "El ascendente", "signo ascendente",
+     "Signo ascendente", "tu ascendente", "Tu ascendente"], "que-es-el-ascendente",
+    nota="Sin \"ascendente\" suelto. Futuro: se publica junto con los planetas.")
+for k, S, _ in SIGNOS:
+    # Pilar por signo solar, en la categoría del signo; cuelga de signo-{signo}.
+    add("Ascendentes", "Pilar del signo", f"{S} y sus ascendentes",
+        [f"{S} y sus ascendentes", f"ascendentes de {S}", f"los ascendentes de {S}", f"Los ascendentes de {S}"],
+        f"{k}-y-sus-ascendentes", S)
+    for k2, A, _ in SIGNOS:
+        add("Ascendentes", "Combinación", f"{S} ascendente {A}",
+            [f"{S} ascendente {A}", f"{S} Ascendente {A}", f"{S} ascendente en {A}", f"{S} con ascendente {A}",
+             f"{S} con ascendente en {A}", f"Sol en {S} y ascendente en {A}", f"Sol en {S} con ascendente en {A}"],
+            f"{k}-ascendente-{k2}", S)
 
 # ---------- Workbook ----------
 wb = Workbook()

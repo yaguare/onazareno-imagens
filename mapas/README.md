@@ -46,6 +46,7 @@ Se carga en el sitio con la ability `enlaces-iluminados/cargar-mapa` usando la U
 - Decisión de Daniel (16/11/2026): solo entidades astrológicas. Ángeles, horas espejo y números quedan afuera.
 - Fechas (16/11/2026): toda fecha completa ("20 de abril") va a `nacidos-el-{d}-de-{mes}` (366, futuros). Después de exportar, subir `tope` a **130** en el JSON (los anuales por signo 2028 llegan a ~90 marcas: 12 mensuales, fechas del calendario, casas y signos; con 90 se cortaba el "Veja também").
 - Familias: signos `signo-{signo}`, planetas (`el-sol-en-astrologia`, `la-luna-en-astrologia`, `planeta-{planeta}`, pilar `planetas-en-astrologia`), retrógrados `{planeta}-retrogrado`, `luna-nueva`, `luna-llena`, `eclipses`, horóscopo del amor 2027 (pilar `horoscopo-amor-2027` y `horoscopo-amor-{signo}-2027`, categoría Amor 2027). Todo futuro salvo el amor 2027.
+- Ascendentes (20/11/2026, mapa `2026-11-20.1`, futuros): pilar general `que-es-el-ascendente` ("el ascendente", "signo ascendente", "tu ascendente"; sin "ascendente" suelto; se publica con los planetas), 12 pilares `{signo}-y-sus-ascendentes` y 144 combinaciones `{sol}-ascendente-{asc}` ("Aries ascendente Tauro", "Aries con ascendente en Tauro", "Sol en Aries y ascendente en Tauro"…), en la categoría del signo solar. El `tope` del JSON cargado es 55 (el exportador pone 30: corregirlo a mano).
 
 ## horoscopo777.com.br
 - Fuente editable: `fuentes/mapa-enlaces-iluminados-horoscopo777.xlsx` (portugués de Brasil; slugs reales del inventario).
