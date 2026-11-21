@@ -102,6 +102,14 @@ add("Ascendentes", "Pilar general", "¿Qué es el ascendente?",
     ["qué es el ascendente", "Qué es el ascendente", "el ascendente", "El ascendente", "signo ascendente",
      "Signo ascendente", "tu ascendente", "Tu ascendente"], "que-es-el-ascendente",
     nota="Sin \"ascendente\" suelto. Futuro: se publica junto con los planetas.")
+# Herramienta (21/11/2026, futura): calculadora de ascendente. Formas más largas que "tu ascendente".
+add("Ascendentes", "Herramienta", "Calculadora de ascendente",
+    ["calculadora de ascendente", "Calculadora de ascendente", "calculadora del ascendente",
+     "Calculadora del ascendente", "calcular tu ascendente", "Calcular tu ascendente", "calcula tu ascendente",
+     "Calcula tu ascendente", "calcular el ascendente", "Calcular el ascendente", "calcular mi ascendente",
+     "Calcular mi ascendente", "calculo mi ascendente", "calcular tu signo ascendente"],
+    "calculadora-de-ascendente",
+    nota="Futuro: herramienta para calcular el ascendente con fecha, hora y lugar.")
 for k, S, _ in SIGNOS:
     # Pilar por signo solar, en la categoría del signo; cuelga de signo-{signo}.
     add("Ascendentes", "Pilar del signo", f"{S} y sus ascendentes",
